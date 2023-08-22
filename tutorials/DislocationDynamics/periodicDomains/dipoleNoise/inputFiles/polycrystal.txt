@@ -1,0 +1,31 @@
+materialFile=../../../MaterialsLibrary/AlMg5.txt; 
+enablePartials=0; 
+absoluteTemperature = 300; # [K] simulation temperature 
+meshFile=../../../MeshLibrary/unitCube.msh; 
+C2G1=0.000000000000000 0.707106781186547 0.707106781186547 
+ 0.816496580927726 0.408248290463863 -0.408248290463863 
+ -0.577350269189626 0.577350269189626 -0.577350269189626 ;
+ 
+ 
+ A=99.999999999999972 0.000000000000000 0.000000000000005 
+ 0.000000000000000 100.458946838994848 0.000000000000000 
+ 0.000000000000000 0.000000000000000 100.429079454110294 ;
+ 
+ 
+ x0=0.000000000000000 0.000000000000000 0.000000000000000 ;
+ periodicFaceIDs=0 1 2 3 4 5 ;
+ 
+dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal
+
+
+#################
+# GlidePlaneNoise
+gridSize=256 256 ; # size of grid on the glide plane
+ gridSpacing_SI=1.000000e-10 1.000000e-10 ; # [m] spacing of grid on the glide plane
+ solidSolutionNoiseMode=2; # 0=no noise, 1= read noise, 2=compute noise
+solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
+solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;
+stackingFaultNoiseMode=2; # 0=no noise
+spreadLstress_A=1; # add comment
+a_cai_A=1; # add comment
+seed=0; # add comment

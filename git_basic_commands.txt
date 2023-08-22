@@ -1,0 +1,24 @@
+# USING MERCURIAL (hg)
+
+1) Cloning initial repository
+git clone https://github.com/giacomo-po/MoDELib.git MoDELib
+
+2) Changing working branch
+git checkout NameOfBranch
+
+2a) or create new branch
+git checkout -b NameOfNewBranch
+
+
+3) Committing and pushing changes:
+cd MODEL
+(make local changes)
+git add -A
+git commit -m "<message>"
+git push 
+
+4) Pull changes from repo
+git pull
+
+5) show what is ignored
+git status --ignored

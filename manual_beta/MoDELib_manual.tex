@@ -1,0 +1,148 @@
+\documentclass[10pt]{report}
+\usepackage{graphicx}
+%\usepackage[ruled,vlined]{algorithm2e}
+\usepackage[]{algorithm2e}
+\usepackage{subcaption}
+%\usepackage{subfig}
+
+\usepackage{cancel}
+
+\graphicspath{{../Figures/}}		% path to graphic files
+\usepackage{fullpage}
+%\usepackage{fancyhdr}
+%\rhead{
+%\includegraphics[width=\textwidth]{header}
+%}
+%\lhead{
+%\includegraphics[width=\textwidth]{header}
+%}
+  \usepackage[dvipsnames]{xcolor}
+  \usepackage{tikz}
+\usepackage{verbatim}
+
+\usepackage{bbding} 
+
+\usepackage[most]{tcolorbox}
+\newtcblisting{commandshell}{colback=black,colupper=white,
+listing only,listing options={style=tcblatex,language=sh},
+every listing line={\textcolor{green}{\small\ttfamily\bfseries  \$ }}}
+
+
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm} 
+%\usepackage{wrapfig} 
+%\usepackage[percent]{overpic}
+
+\usepackage{natbib} 
+\usepackage{lipsum}
+
+
+\usepackage[pagebackref]{hyperref}
+\hypersetup{
+   % pagebackref =true,
+    colorlinks,%
+    citecolor=blue,% 
+    filecolor=black,%
+    linkcolor=magenta,% 
+    urlcolor=black
+}
+
+  
+%\author{Giacomo Po}
+%\title{Field Equations of Discrete Dislocations}
+
+
+\newcommand{\dL}[0]{\, \text{d}L}
+\newcommand{\dA}[0]{\, \text{d}A}
+\newcommand{\dV}[0]{\, \text{d}V}
+
+\newcommand{\GP}[0]{G^\Delta}
+\newcommand{\hGP}[0]{\hat{G}^\Delta}
+
+\newcommand{\GH}[0]{G^L}
+\newcommand{\hGH}[0]{\hat{G}^L}
+
+\newcommand{\bPc}[0]{\beta^{P}}
+%\newcommand{\bPg}[0]{\beta^{P}}
+
+%\newcommand{\bEg}[0]{\beta}
+\newcommand{\bEc}[0]{\beta}
+
+\newcommand{\eEc}[0]{\varepsilon}
+\newtheorem{mytheorem}{Theorem}
+\newtheorem{mydefinition}{Definition}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay] 
+\def \Px{-3.5}
+\def \Py{-20}
+\def \Lx{1.2*\textwidth}
+\def \Ly{10}
+\node[opacity=1,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{straight_lines}};
+ \fill [black, opacity=0.7]
+       (\Px,\Py) -- (\Px,\Py+\Ly) -- (\Px+\Lx,\Py+\Ly)-- (\Px+\Lx,\Py) -- cycle;
+\node[anchor=north west] at (\Px+3.0,\Py+\Ly-1) {\Huge{\textcolor{white}{
+\textbf{MoDELib manual}}}};
+\node[anchor=north west] at (\Px+3.0,\Py+\Ly-2) {\Large{\textcolor{white}{
+???}}};
+%\node[anchor=north west] at (\Px+3.0,\Py+\Ly-2.8) {\Large{\textcolor{white}{
+%}}};
+
+\draw[very thick,orange]  (\Px,\Py+0.4*\Ly) --  (\Px+\Lx,\Py+0.4*\Ly);
+
+\node[anchor=north west] at (\Px+3.0,\Py+\Ly-4) {\Huge{\textcolor{white}{
+ ???}}};
+\draw[very thick,orange]  (\Px,\Py+0.4*\Ly) --  (\Px+\Lx,\Py+0.4*\Ly);
+
+
+\node[anchor=north west] at (\Px+3.0,\Py+\Ly-7) {\Huge{\textcolor{white}{
+Giacomo Po}}};
+\node[anchor=north west] at (\Px+3.0,\Py+\Ly-8) {\Large{\textcolor{white}{
+\today}}};
+%\node[anchor=north west] at (\Px+4.5,\Py+\Ly-7) {\large{\textcolor{white}{
+%10755 Massachusetts Ave}}};
+%\node[anchor=north west] at (\Px+4.5,\Py+\Ly-8) {\large{\textcolor{white}{
+%Los Angeles, CA}}};
+ \end{tikzpicture}
+
+%\maketitle
+
+\chapter*{Preface}
+\chapter*{Acknowledgements}
+\tableofcontents
+\input{tex/elasticTheory}
+\input{tex/MoDElib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\input{tex/math}
+\input{tex/straightDislocations}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plainnat}
+\bibliography{references_GP,references_GP2,references_GP3,references_GP4,references_ML,references_NA,references_NG2,references_MM,references_tamer}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+

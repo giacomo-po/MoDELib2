@@ -1,0 +1,182 @@
+namespace model {
+/*! \page hoffman2 DD on the Hoffman2 cluster
+
+<a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> is the high-performance computer cluster at
+<a href="http://www.ucla.edu">UCLA</a>. If you are using MODEL-DD on Hoffman2, this page may contain useful information about the use of MODEL.
+
+###########################################################
+\section hoffman2_setup Setting up Hoffman2
+
+###########################################################
+\subsection hoffman2_login Login
+\verbatim
+ssh username@hoffman2.idre.ucla.edu
+\endverbatim
+
+###########################################################
+\subsection hoffman2_compiler Setting up environment (only once)
+If a c++11-capable compiler is available (e.g. gcc5.3) add the
+following lines to your .bashrc to permanently set the environment
+\verbatim
+module load gcc/5.3.0 > /dev/null 2>&1 
+module load intel/16.0.2 > /dev/null 2>&1
+module load openmpi
+\endverbatim
+Note that the second line is necessary to use the mkl-pardiso solver.
+
+
+If the desired compiler is not available as a module, install a local version 
+of the compiler, for example in
+\verbatim
+$HOME/gcc5.3
+\endverbatim
+Then create the module file
+\verbatim
+$HOME/modulefiles/gcc5.3
+\endverbatim
+containing the following text:
+\verbatim
+#%Module
+#
+set  name         "gcc5.3"
+#set  version      "5"
+#set  release      "3"
+proc ModulesHelp { } {
+    global name
+    global version
+    global release
+    puts stderr ""
+}
+module-whatis "Adds the $name to user's environment"
+module-whatis "Name        : $name"
+
+set           home              [ set env(HOME)]
+set           base_dir          $home/$name
+prepend-path  PATH              $base_dir/bin
+prepend-path  LD_LIBRARY_PATH   $base_dir/lib:$base_dir/lib64
+prepend-path	 LIBRARY_PATH $base_dir/lib:$base_dir/lib64 
+prepend-path	 INCLUDE $base_dir/include 
+prepend-path	 MANPATH $base_dir/share/man 
+prepend-path	 INFOPATH $base_dir/share/info 
+setenv		 GCC_DIR $base_dir 
+setenv		 GCC_BIN $base_dir/bin 
+setenv		 GCC_INC $base_dir/include 
+setenv		 GCC_LIB $base_dir/lib 
+\endverbatim
+Finally, add the following lines to .bashrc
+\verbatim
+module use $HOME/modulefiles
+module load gcc5.3
+module load intel/16.0.2 > /dev/null 2>&1
+module load openmpi
+\endverbatim
+
+###########################################################
+\section hoffma2_dd_compile Compiling
+Compile DDomp with
+\verbatim
+make DDomp
+\endverbatim
+
+Compile DDmpi with
+\verbatim
+make DDmpi
+\endverbatim
+
+See also the instructions in the tutorial \ref FRsource_makefile.
+
+###########################################################
+\section hoffma2_dd_interactive Running in interactive mode
+The command used to obtain an interactive section is <a href="http://hpc.ucla.edu/hoffman2/computing/sge_qrsh.php">qrsh</a>. The command qrsh is followed by the "-l" directive which allows to specify a series of parameters separated by commas. For example
+\verbatim
+qrsh -l h_data=4g,h_rt=2:00:00
+\endverbatim
+requests one (1) interactive processor with 4Gb of memory (h_data=4g) for  2 hours, 0 minutes, and 0 seconds (h_rt=8:00:00). The maximum time limit is 24h, unless you are a member of a resource group. In that case the time limit is 14days, but the "highp" parameter must be used:
+\verbatim
+qrsh -l h_data=4g,h_rt=48:00:00,highp
+\endverbatim
+If your request cannot be accommodated immediately but you are willing to wait indefinitely until it is eventually honored, you can append the flag "-now n" to the qrsh command:
+\verbatim
+qrsh -l h_data=4g,h_rt=48:00:00,highp -now n
+\endverbatim
+The maximum wait time for members of resource groups is 24h.
+
+If you issue one of the previous commands, however, you still ha have one (1) processors to work with. In order to request more than one processor, we need the "-pe" (parallel environment) directive. The way you use the "-pe" directive depends on the version of the DD code that we run, as explained below.
+
+###########################
+\subsection hoffma2_dd_interactive_DDomp DDomp
+If you compiled DDomp, <a href="http://openmp.org">OpenMP</a> is used to speed up the most computationally-intensive loops. Therefore, in order to achieve optimum performance, DDomp must be run on a shared-memory machine with the largest possible number of cores. In order to obtain one such machine with the qrsh command, you can use the directive "-pe shared N", where "N" is the requested number of cores. For example:
+\verbatim
+qrsh -l h_data=4g,h_rt=4:00:00 -pe shared 8
+\endverbatim
+requests 8 cores on the same node, which "share" the memory of that node. Note that Hoffman2 has 8-, 12-, and 16-core nodes. 
+
+After the node has been obtained, you can run DDomp as:
+\verbatim
+./DDomp
+\endverbatim
+
+###########################
+\subsection hoffma2_dd_interactive_DDmpi DDmpi
+If you compiled DDmpi, <a href="http://www.open-mpi.org">Open-MPI</a> is used in combination with <a href="http://openmp.org">OpenMP</a> to speed up the most computationally-intensive loops. You can then request multiple nodes (machines) on the cluster which communicate using <a href="http://www.open-mpi.org">Open-MPI</a>, each of them internally using <a href="http://openmp.org">OpenMP</a>. Therefore, you must request "entire" nodes on the <a href="https://idre.ucla.edu/hoffman2">Hoffman2</a> cluster, where "entire" here means that all cores on a specific machine will be reserved to run DDmpi. The parallel environment to be requested via qrsh is "-pe node*" in combination with the "exclusive" directive. For example:
+\verbatim
+qrsh -l h_data=4g,h_rt=3:00:00,exclusive,highp -now n -pe node* 4
+\endverbatim
+requests 4 nodes, for 3 hours, and from the resource group (highp). If each node has 12 cores, the total number of cores used will be 4*12=48. DDmpi will then create 4 MPI processes (on for each node), each internally creating 12 threads.
+
+After the nodes have been obtained, it is necessary to update the environmental variables.
+\verbatim
+. /u/local/bin/set_qrsh_env.sh
+\endverbatim
+
+You can run DDmpi using the "mpirun" command. However, in order to make sure that the correct version of "mpirun" is used, it is recommended to specify its full path using the environmental variable $MPI_BIN:
+\verbatim
+$MPI_BIN/mpirun -pernode DDmpi
+\endverbatim
+where "N" is the number of requested nodes. The "-pernode" flag is an alternative to using a hostfile.
+
+
+###########################################################
+\section hoffma2_dd_batch Running in batch mode
+
+###########################
+\subsection hoffma2_dd_batch_DDomp DDomp
+In batch mode, DDomp is typically used in the case that multiple jobs are run at the same time. This is called a job-array. Each job in the array runs in a single node, using OpenMP.
+
+Suppose that the folder <JARRDIR> contains the Makefile and that DDomp is compiled in <JARRDIR>. <JARRDIR> also contains subfolders <A>, <B>, … <Z>, where each subfolder
+contains job-specific input files (DDinput, loadInput,…).
+
+TO BE FINISHED
+
+###########################
+\subsection hoffma2_dd_batch_DDmpi DDmpi
+
+A dedicated script has been created to run DDmpi on the Hoffman2 cluster in batch mode. The script, named submit_DDmpi.sh, is listed at the bottom of this page. 
+
+Before using the script, the following should be edited
+- h_rt=HHH:MM:SS (the time requested for the run)
+- if only resource nodes are to be used, append the "highp" directive to the "-l" list
+
+Once the above options have been selected, use the script as follows: 
+\verbatim
+qsub -pe node* 10 submit_DDmpi.sh
+\endverbatim
+where, in this example, 10 is the number of requested nodes. Note that by using "-pe node* 10" you are requesting 10 nodes on the cluster, each of them containing multiple cores. DDmpi will then create 10 mpi processes, each of them using openmp internally to fully take advantage of multithreading.
+
+The job should now be visible using 
+\verbatim
+myjob
+\endverbatim
+
+The job can be deleted using 
+\verbatim
+qdel <jobID>
+\endverbatim
+
+
+Following is the submit_DDmpi.sh script (thanks Raffaella D'Auria): 
+\include ./submit_DDmpi.sh
+
+
+*/
+}
