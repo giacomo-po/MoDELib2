@@ -38,7 +38,6 @@
 #include <vtkCellData.h>
 
 //#include <IDreader.h>
-//#include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <NetworkLinkActor.h>

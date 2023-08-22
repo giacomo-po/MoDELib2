@@ -38,7 +38,7 @@
 #include <vtkLabeledDataMapper.h>
 #include <vtkFloatArray.h>
 #include <IDreader.h>
-#include <PlanarPolygon.h>
+//#include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 //#include <DDconfigVtkBase.h>

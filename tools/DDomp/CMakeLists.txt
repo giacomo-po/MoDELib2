@@ -1,23 +1,19 @@
+# cmake .. -D CMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-12
 cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_AS_LIB "ON to build as a static library" OFF)
-option(USE_NOISE_GENERATOR "Use fftw to generate the noise" ON)
+option(USE_NOISE_GENERATOR "Use fftw to generate the noise" OFF)
 
-set(EigenRootDir "/usr/local/include")
-set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+find_package(eigen3 3.4 REQUIRED NO_MODULE)
+
+#set(EigenRootDir "/usr/local/include")
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
-if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
-	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++-mp-11")
-#	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
-#	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native -O3 -Ofast")
-endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -Ofast")
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 if(BUILD_AS_LIB)
 	add_library(DDomp STATIC)
@@ -35,8 +31,7 @@ if(USE_NOISE_GENERATOR)
 	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
 endif()
 
-
-include_directories(${EigenRootDir})
+include_directories ( ${EIGEN3_INCLUDE_DIRS} )
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)

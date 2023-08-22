@@ -40,7 +40,7 @@
 #include <vtkDataSetMapper.h>
 
 #include <IDreader.h>
-#include <PlanarPolygon.h>
+//#include <PlanarPolygon.h>
 #include <DDauxIO.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>

@@ -40,7 +40,7 @@
 #include <vtkFloatArray.h>
 #include <vtkTriangleFilter.h>
 #include <IDreader.h>
-#include <PlanarPolygon.h>
+//#include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <PeriodicGlidePlaneFactory.h>

@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(DDqt VERSION 1.0.0 LANGUAGES CXX)
 
-option(USE_NOISE_GENERATOR "Use fftw to generate the noise" ON)
-list(APPEND CMAKE_PREFIX_PATH "/Applications/Qt/6.1.3/macos/lib/cmake")
-set(EigenRootDir "/usr/local/include")
-set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../../")
+option(USE_NOISE_GENERATOR "Use fftw to generate the noise" OFF)
+list(APPEND CMAKE_PREFIX_PATH "/Users/Giacomo/Applications/Qt/6.5.2/macos/lib/cmake")
+
+find_package(eigen3 3.4 REQUIRED NO_MODULE)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -Ofast")
 set(CMAKE_BUILD_TYPE Release)
@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../../")
+
 
 add_executable(${PROJECT_NAME} DDqt.cxx)
 
@@ -40,7 +42,7 @@ if (NOT VTK_FOUND)
   return()
 endif()
 
-include_directories(${EigenRootDir})
+include_directories ( ${EIGEN3_INCLUDE_DIRS} )
 include_directories(${MoDELibRootDir}/include/DislocationMobilities)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO)
 include_directories(${MoDELibRootDir}/include/Mesh/)
