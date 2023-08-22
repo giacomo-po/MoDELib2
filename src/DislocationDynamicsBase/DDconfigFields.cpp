@@ -21,7 +21,7 @@ namespace model
     template <int dim>
     DDconfigFields<dim>::DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in):
     /* init */ ddBase(ddBase_in)
-    /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
+//    /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
     /* init */,configIO(configIO_in)
     {
         
@@ -232,7 +232,7 @@ namespace model
         double temp(0.0);
         for(const auto& patch : loopPatches())
         {
-            for(const auto& shift : periodicShifts)
+            for(const auto& shift : ddBase.periodicShifts)
             {
                 temp+=patch.second.solidAngle(x+shift);
             }
@@ -247,7 +247,7 @@ typename DDconfigFields<dim>::VectorDim DDconfigFields<dim>::dislocationPlasticD
     for(const auto& patch : loopPatches())
     {
         const auto& loop(configIO.loop(patch.first));
-        for(const auto& shift : periodicShifts)
+        for(const auto& shift : ddBase.periodicShifts)
         {
             temp-=patch.second.solidAngle(x+shift)/4.0/std::numbers::pi*loop.B;
         }
@@ -270,7 +270,7 @@ typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::dislocationStress(
                 const auto& sourceNode(configIO.nodes()[itSource->second]);
                 const auto&   sinkNode(configIO.nodes()[itSink->second]);
                 StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b);
-                for(const auto& shift : periodicShifts)
+                for(const auto& shift : ddBase.periodicShifts)
                 {
                     temp+=ss.stress(x+shift);
                 }
@@ -290,7 +290,7 @@ typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::inclusionStress(co
     MatrixDim temp(MatrixDim::Zero());
     for(const auto& inclusion : eshelbyInclusions() )
     {
-        for(const auto& shift : periodicShifts)
+        for(const auto& shift : ddBase.periodicShifts)
         {
             temp+=inclusion.second->stress(x+shift);
         }

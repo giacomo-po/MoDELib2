@@ -32,6 +32,7 @@ DislocationDynamicsBase<_dim>::DislocationDynamicsBase( const std::string& folde
 /* init */,poly(simulationParameters.traitsIO.polyFile,mesh)
 /* init */,glidePlaneFactory(poly)
 /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
+/* init */,periodicShifts(mesh.periodicShifts(simulationParameters.periodicImageSize))
 {
     if(!mesh.simplices().size())
     {

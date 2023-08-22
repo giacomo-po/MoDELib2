@@ -6,7 +6,7 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#include <AtomDisplacer.h>
+#include <ConfigurationFields.h>
 
 using namespace model;
 

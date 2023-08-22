@@ -14,11 +14,13 @@
 #include <vector>
 #include <memory>
 
+#include <DislocationDynamicsBase.h>
 #include <DDtimeIntegrator.h>
 #include <DefectiveCrystalParameters.h>
 #include <DislocationDynamicsModule.h>
 #include <CrackSystem.h>
 #include <UniformExternalLoadController.h>
+
 
 namespace model
 {
@@ -37,12 +39,14 @@ namespace model
         typedef BVPsolver<dim,2> BVPsolverType;
         typedef typename BVPsolverType::ElementType ElementType;
         
-        DefectiveCrystalParameters simulationParameters;
         
-        const std::set<int> periodicFaceIDs;
-        const SimplicialMesh<dim> mesh;
-        const std::vector<VectorDim> periodicShifts;
-        const Polycrystal<dim> poly;
+        DislocationDynamicsBase<dim>& ddBase;
+//        DefectiveCrystalParameters simulationParameters;
+//
+//        const std::set<int> periodicFaceIDs;
+//        const SimplicialMesh<dim> mesh;
+//        const std::vector<VectorDim> periodicShifts;
+//        const Polycrystal<dim> poly;
         const std::unique_ptr<DislocationNetworkType> DN;
         const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;
@@ -50,16 +54,15 @@ namespace model
         
         
         
-        static std::unique_ptr<ExternalLoadControllerBase<dim>> getExternalLoadController(const DefectiveCrystalParameters& params,
-                                                                                          const DefectiveCrystalType& dc,
-                                                                                          const long int& rID);
+        static std::unique_ptr<ExternalLoadControllerBase<_dim>> getExternalLoadController(const DislocationDynamicsBase<dim>& ddBase_in, const MatrixDim& plasticStrain_in);
                 
 //        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,const DefectiveCrystalParameters& params);
         void updateLoadControllers(const long int& runID, const bool& isClimbStep);
         
     public:
         
-        DefectiveCrystal(const std::string& folderName) ;
+        DefectiveCrystal(DislocationDynamicsBase<_dim>& ddBase_in) ;
+//        DefectiveCrystal(const std::string& folderName) ;
         void singleGlideStep();;
         void runGlideSteps();
         MatrixDim plasticDistortion() const;

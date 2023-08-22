@@ -42,7 +42,7 @@ namespace model
         typedef std::map<size_t,PolyhedronInclusionNodeIO<dim>> PolyhedronInclusionNodeContainerType;
         
         DislocationDynamicsBase<dim>& ddBase;
-        const std::vector<VectorDim> periodicShifts;
+//        const std::vector<VectorDim> periodicShifts;
         const DDconfigIO<dim>& configIO;
         
         DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in);

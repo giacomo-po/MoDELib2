@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_AtomDisplacerH_
-#define model_AtomDisplacer_H_
+#ifndef model_ConfigurationFields_H_
+#define model_ConfigurationFields_H_
 
 #include <string>
 
@@ -23,14 +23,14 @@ namespace model
 
     
 
-    struct AtomDisplacer
+    struct ConfigurationFields
     {
         
         typedef Eigen::Matrix<double,3,1> VectorDim;
         typedef Eigen::Matrix<double,3,3> MatrixDim;
 
     
-        AtomDisplacer(const std::string& folderName);
+        ConfigurationFields(const std::string& folderName);
         
         DislocationDynamicsBase<3> ddBase;
 //        DDconfigIO<3> configIO;
@@ -51,6 +51,7 @@ namespace model
         MatrixDim inclusionStress(const VectorDim& x) const;
         MatrixDim inclusionStress(const double& x,const double& y,const double& z) const;
 
+//        double latticeParameter() const;
 
     };
 

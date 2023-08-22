@@ -20,8 +20,9 @@ namespace model
  
         /**************************************************************************/
         template <int dim>
-        ExternalLoadControllerBase<dim>::ExternalLoadControllerBase(const std::string& _inputFileName) :
-        /* init list */ inputFileName(_inputFileName)
+        ExternalLoadControllerBase<dim>::ExternalLoadControllerBase(const DislocationDynamicsBase<dim>& ddBase_in,const std::string& _inputFileName) :
+        /* init list */ ddBase(ddBase_in)
+        /* init list */,inputFileName(_inputFileName)
         /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
         /* init list */,ExternalStressRate(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStressRate",dim,dim,true))
         /* init list */,ExternalStrain0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStrain0",dim,dim,true))
@@ -30,8 +31,9 @@ namespace model
         /* init list */,ExternalStrain(MatrixDim::Zero())
         /* init list */,plasticStrain(MatrixDim::Zero())
         /* init list */,MachineStiffnessRatio(TextFileParser(this->inputFileName).readMatrix<double>("MachineStiffnessRatio",1,voigtSize,true))
-        /* init list */,lambda(1.0)
-        /* init list */,nu_use(0.12)
+        /* init list */,nu(ddBase.poly.nu)
+        /* init list */,lambda(2.0*nu/(1.0-2.0*nu))
+        /* init list */,nu_use(nu/(1.0+nu)/2.0)
         /* init list */,stressmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero())
         /* init list */,strainmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero())
         {
@@ -59,20 +61,6 @@ namespace model
         ExternalLoadControllerBase<dim>::~ExternalLoadControllerBase()
         {
         }
-
-//        /**************************************************************************/
-//        template <int dim>
-//        typename ExternalLoadControllerBase<dim>::MatrixDim ExternalLoadControllerBase<dim>::stress(const VectorDim&) const = 0;
-//        
-//        /*************************************************************************/
-//        template <int dim>
-//        void ExternalLoadControllerBase<dim>::update(const long int& runID) = 0;
-//        
-//        /**************************************************************************/
-//        template <int dim>
-//        void ExternalLoadControllerBase<dim>::output(const long int& runID,
-//                            UniqueOutputFile<'F'>& f_file,
-//                            std::ofstream& F_labels) const = 0;
         
         template class ExternalLoadControllerBase<3>;
 }

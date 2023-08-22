@@ -24,4 +24,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/ExternalLoadControllerBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/SimplexBndNormal.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationQuadraturePoint.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/UniformExternalLoadController.cpp
 		)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
-project(DD2MD VERSION 1.0.0 LANGUAGES CXX)
+project(ConfigFields VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(eigen3 3.4 REQUIRED NO_MODULE)
 find_package(pybind11 CONFIG REQUIRED)
@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -Ofast")
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
-pybind11_add_module(DD2MD SHARED dd2md.cpp)
+pybind11_add_module(ConfigFields SHARED ddFields.cpp)
 
 include_directories ( ${EIGEN3_INCLUDE_DIRS} )
 include_directories(${MoDELibRootDir}/include/Utilities/)
@@ -27,7 +27,7 @@ include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO/)
 include_directories(${MoDELibRootDir}/include/DislocationMobilities/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
-include_directories(${MoDELibRootDir}/include/DD2MD/)
+include_directories(${MoDELibRootDir}/include/ConfigurationFields/)
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
@@ -38,6 +38,6 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsBase DDDbase)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/DislocationMicrostructure Microstructure)
-add_subdirectory(${MoDELibRootDir}/src/DD2MD DD2MD)
+add_subdirectory(${MoDELibRootDir}/src/ConfigurationFields ConfigurationFields)
 
-target_link_libraries(DD2MD PUBLIC pybind11::module)
+target_link_libraries(ConfigFields PUBLIC pybind11::module)

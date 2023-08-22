@@ -32,6 +32,7 @@ namespace model
         //  those common to MicrostructureGenerator and DefectiveCrystal
         //  so that their members can be references to those in this class
         static constexpr int dim=_dim;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef DislocationDynamicsBase<dim> DislocationDynamicsBaseType;
 
         
@@ -41,7 +42,8 @@ namespace model
         const Polycrystal<dim> poly;
         GlidePlaneFactory<3> glidePlaneFactory;
         PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
-        
+        const std::vector<VectorDim> periodicShifts;
+
     }; // class DislocationDynamicsBase
 } // namespace model
 #endif

@@ -376,7 +376,7 @@ namespace model
             
             if (DN.externalLoadController)
             {
-                DN.externalLoadController->output(runID,f_file,F_labels);
+                DN.externalLoadController->output(f_file,F_labels);
             }
             
             if(DN.bvpSolver)

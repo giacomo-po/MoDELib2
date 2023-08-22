@@ -24,7 +24,8 @@ int main (int argc, char* argv[])
 {
     const std::string folderName(argc>1? std::string(argv[1]) : "./");
     
-    DefectiveCrystal<3,0> DC(folderName);
+    DislocationDynamicsBase<3> ddBase(folderName);
+    DefectiveCrystal<3,0> DC(ddBase);
     DC.runGlideSteps();
     
     return 0;
