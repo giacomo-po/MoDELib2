@@ -37,13 +37,7 @@ use_stochasticForce=0;
 stochasticForceSeed=-1;
 useSubCycling=0;
 subcyclingBins=1 2 5 10 50 100;
-
-######################################
-# DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
-# 0=lumped solver (fast but approximate. K is lumped into a diagonal matrix)
-# 1=iterative solver (CG), 
-# 2=direct solver (LLT)
-ddSolverType=0;
+glideSolverType=Galerkin; # type of glide solver (Galerkin, NeuralNetwork)
 
 ######################################
 # DISLOCATION ELASTIC FIELDS

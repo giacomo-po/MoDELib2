@@ -78,7 +78,7 @@
 #include <PolyhedronInclusion.h>
 
 #include <DDconfigIO.h>
-#include <DislocationGlideSolver.h>
+#include <DislocationGlideSolverFactory.h>
 #include <CrossSlipModels.h>
 
 //#include <TextFileParser.h>
@@ -113,6 +113,7 @@ namespace model
     {
         
     public:
+
         
         typedef TypeTraits<DislocationNetwork<dim,corder>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
@@ -132,9 +133,9 @@ namespace model
         typedef typename BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
 
+        constexpr static int NdofXnode=NetworkNodeType::NdofXnode;
         
         static int verboseDislocationNetwork;
-
 
     public:
 
@@ -146,6 +147,7 @@ namespace model
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
         const std::vector<VectorDim>& periodicShifts;
+        const std::shared_ptr<DislocationGlideSolverBase<DislocationNetwork<dim,corder>>> glideSolver;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
         DislocationJunctionFormation<DislocationNetwork<dim,corder>> junctionsMaker;
         const std::shared_ptr<BaseCrossSlipModel<DislocationNetwork<dim,corder>>> crossSlipModel;

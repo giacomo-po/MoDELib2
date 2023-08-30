@@ -41,12 +41,6 @@ namespace model
         
         
         DislocationDynamicsBase<dim>& ddBase;
-//        DefectiveCrystalParameters simulationParameters;
-//
-//        const std::set<int> periodicFaceIDs;
-//        const SimplicialMesh<dim> mesh;
-//        const std::vector<VectorDim> periodicShifts;
-//        const Polycrystal<dim> poly;
         const std::unique_ptr<DislocationNetworkType> DN;
         const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;

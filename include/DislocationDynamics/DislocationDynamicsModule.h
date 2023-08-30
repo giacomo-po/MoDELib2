@@ -107,7 +107,7 @@ namespace model
 #include <DislocationLoopLink.h>
 #include <DislocationNode.h>
 #include <DislocationSegment.h>
-#include <DislocationGlideSolver.h>
+//#include <DislocationGlideSolver.h>
 #include <DislocationNetworkRemesh.h>
 
 //#include <DislocationNetworkRemesh.cpp>

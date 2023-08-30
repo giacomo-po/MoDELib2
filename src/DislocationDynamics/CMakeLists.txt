@@ -11,7 +11,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/ConfinedDislocationObject.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DefectiveCrystal.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetwork.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/DislocationGlideSolver.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/GalerkinGlideSolver.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNode.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DDtimeIntegrator.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationSegment.cpp
@@ -25,4 +25,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/SimplexBndNormal.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationQuadraturePoint.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/UniformExternalLoadController.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationGlideSolverFactory.cpp
 		)

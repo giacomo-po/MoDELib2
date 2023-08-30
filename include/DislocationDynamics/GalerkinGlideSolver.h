@@ -10,26 +10,26 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DislocationGlideSolver_h_
-#define model_DislocationGlideSolver_h_
+#ifndef model_GalerkinGlideSolver_h_
+#define model_GalerkinGlideSolver_h_
 
 //#include <PlanarDislocationNode.h>
 
 
 #ifndef NDEBUG
-#define VerboseDislocationGlideSolver(N,x) if(verboseDislocationGlideSolver>=N){std::cout<<x;}
+#define VerboseGalerkinGlideSolver(N,x) if(verboseGalerkinGlideSolver>=N){std::cout<<x;}
 #else
-#define VerboseDislocationGlideSolver(N,x)
+#define VerboseGalerkinGlideSolver(N,x)
 #endif
 
 #include <DislocationDynamicsModule.h>
-
+#include <DislocationGlideSolverFactory.h>
 namespace model
 {
     
     template <typename DislocationNetworkType>
 //    template<int dim,int corder>
-    class DislocationGlideSolver
+    class GalerkinGlideSolver : public DislocationGlideSolverBase<DislocationNetworkType>
     {
 //        typedef DislocationNetwork<dim,corder> DislocationNetworkType;
         typedef typename DislocationNetworkType::VectorDim   VectorDim;
@@ -46,18 +46,20 @@ namespace model
         static constexpr int dim=TypeTraits<DislocationNetworkType>::dim;
 
 
-        void lumpedSolve();
-        
-        DislocationNetworkType& DN;
+//        void lumpedSolve();
+//        void solve(const size_t& runID);
+        Eigen::VectorXd lumpedSolve() const;
+        size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq) const;
+//        void storeNodeSolution(const Eigen::VectorXd& X);
+        size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const;
+
         
         public:
         
-        DislocationGlideSolver(DislocationNetworkType& );
-        void solve(const size_t& runID);
-        void lumpedSolve(const size_t& runID);
-        size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq);
-        void storeNodeSolution(const Eigen::VectorXd& X);
-        size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const;
+        GalerkinGlideSolver(const DislocationNetworkType& );
+        Eigen::VectorXd getNodeVelocities() const override;
+
+        
     };
     
 }

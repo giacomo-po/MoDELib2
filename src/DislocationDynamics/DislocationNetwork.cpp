@@ -34,6 +34,7 @@ DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParamet
 /* init */,bvpSolver(_bvpSolver)
 /* init */,externalLoadController(_externalLoadController)
 /* init */,periodicShifts(_periodicShifts)
+/* init */,glideSolver(DislocationGlideSolverFactory<DislocationNetwork<dim,corder>>::getGlideSolver(*this,TextFileParser(simulationParameters.traitsIO.ddFile).readString("glideSolverType",true)))
 /* init */,networkRemesher(*this)
 /* init */,junctionsMaker(*this)
 /* init */,crossSlipModel(DislocationCrossSlip<DislocationNetwork<dim,corder>>::getModel(poly,simulationParameters.traitsIO))
@@ -42,7 +43,7 @@ DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParamet
 /* init */,timeIntegrator(simulationParameters.traitsIO.ddFile)
 /* init */,stochasticForceGenerator(simulationParameters.use_stochasticForce? new StochasticForceGenerator(simulationParameters.traitsIO) : nullptr)
 /* init */,networkIO(*this)
-/* init */,ddSolverType(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("ddSolverType",true))
+///* init */,ddSolverType(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("ddSolverType",true))
 /* init */,computeDDinteractions(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
 /* init */,outputFrequency(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
 /* init */,outputBinary(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
@@ -663,7 +664,22 @@ void DislocationNetwork<dim, corder>::solveGlide(const long int &runID)
 {
 //    const auto t0 = std::chrono::system_clock::now();
 //    std::cout <<"Solving glide "<< std::flush;
-    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
+//    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
+    const Eigen::VectorXd X(glideSolver->getNodeVelocities());
+    if(NdofXnode*this->networkNodes().size()==X.size())
+    {
+        size_t k=0;
+        for (auto& networkNode : this->networkNodes())
+        {
+            networkNode.second.lock()->set_V(X.segment(NdofXnode*k,NdofXnode)); // double cast to remove some numerical noise
+            ++k;
+        }
+    }
+    else
+    {
+        throw std::runtime_error("glideSolver returned wrong velocity vector size.");
+    }
+    
 //    std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
 }
 
