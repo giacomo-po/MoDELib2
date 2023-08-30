@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_AS_LIB "ON to build as a static library" OFF)
-option(USE_NOISE_GENERATOR "Use fftw to generate the noise" OFF)
+option(USE_NOISE_GENERATOR "Using fftw3 to generate the GlidePlaneNoise" OFF)
+option(USE_PYBIND11 "Using pybind11" ON)
+
 
 find_package(eigen3 3.4 REQUIRED NO_MODULE)
 
@@ -29,6 +31,12 @@ if(USE_NOISE_GENERATOR)
 	include_directories(${FFTW3_INCLUDE_DIRS})
 	include_directories(${BOOSTDir})
 	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
+endif()
+
+if(USE_PYBIND11)
+	find_package(Python COMPONENTS Interpreter Development)
+	find_package(pybind11 CONFIG REQUIRED)
+	add_definitions(-D _MODEL_PYBIND11_)
 endif()
 
 include_directories ( ${EIGEN3_INCLUDE_DIRS} )
@@ -65,3 +73,8 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 if(USE_NOISE_GENERATOR)
 	target_link_libraries(${PROJECT_NAME} ${FFTW3_LIBRARIES})
 endif()
+
+if(USE_PYBIND11)
+target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)
+endif()
+

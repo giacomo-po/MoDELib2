@@ -37,7 +37,7 @@ use_stochasticForce=0;
 stochasticForceSeed=-1;
 useSubCycling=0;
 subcyclingBins=1 2 5 10 50 100;
-glideSolverType=Galerkin; # type of glide solver (Galerkin, NeuralNetwork)
+glideSolverType=Galerkin; # type of glide solver (Galerkin, pybind11)
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
