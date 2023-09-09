@@ -176,7 +176,6 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
                 throw std::runtime_error("Cannot determine periodic box size.");
             }
             
-//            const double L(50.0);
             const VectorDimD step(L*b.cartesian());
             for(size_t k1=0;k1<planes.size();++k1)
             {

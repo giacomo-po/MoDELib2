@@ -33,9 +33,9 @@ switch lattice
         material='W';
     case 'fcc'
         A=1/sqrt(2)*[0 1 1;1 0 1;1 1 0]; % fcc
-        material='AlMg15';
+%        material='AlMg15';
 %        material='Al';
-%        material='Ni';
+        material='Ni';
     otherwise
 end
 A=C2G1*A;
@@ -53,7 +53,7 @@ L(:,i)=A*Nr;
 Ln(i)=norm(L(:,i));
 end
 
-scaling=100;
+scaling=1000;
 T=round(scaling*diag(1./Ln))
 
 %T=[1000 0 0
@@ -69,6 +69,7 @@ fID=fopen('polycrystal.txt','w');
 fprintf(fID,['materialFile=../../../MaterialsLibrary/' material '.txt; \n']);
 fprintf(fID,'enablePartials=0; \n');
 fprintf(fID,'absoluteTemperature = 300; # [K] simulation temperature \n');
+fprintf(fID,'dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal \n');
 fprintf(fID,'meshFile=../../../MeshLibrary/unitCube.msh; \n');
 fprintf(fID,'C2G1=');
 fprintf(fID,'%1.15f ',C2G1(1,:));

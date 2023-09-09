@@ -23,10 +23,10 @@ DislocationDynamicsBase<_dim>::DislocationDynamicsBase( const std::string& folde
 /* init */,mesh(simulationParameters.traitsIO.meshFile,
                 TextFileParser(
                                simulationParameters.traitsIO.polyFile
-                               ).readMatrix<double>("A",_dim,_dim,true),
+                               ).readMatrix<double>("F",_dim,_dim,true),
                 TextFileParser(
                                simulationParameters.traitsIO.polyFile
-                               ).readMatrix<double>("x0",1,_dim,true).transpose(),
+                               ).readMatrix<double>("X0",1,_dim,true).transpose(),
                 simulationParameters.periodicFaceIDs
                 )
 /* init */,poly(simulationParameters.traitsIO.polyFile,mesh)

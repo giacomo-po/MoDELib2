@@ -19,17 +19,17 @@ ad.readMicrostructure()
 #print(ad.solidAngle(100,100,100))
 #print(ad.dislocationPlasticDisplacement(100,100,100))
 
-#n1=100;
-#n2=100;
-#y=500
-#x=np.linspace(0, 1000, num=n1)
-#z=np.linspace(0, 1000, num=n2)
-#sa=np.empty([n1, n2])
-#for i1 in range(0,x.size):
-#    for i2 in range(0,z.size):
-#        temp=ad.dislocationStress(x[i1],y,z[i2])
-#        sa[i2,i1]=temp[0,0]
-#plt.imshow(sa, origin='lower',cmap='jet')
-#plt.colorbar()
-#plt.show()
+n1=100;
+n2=100;
+y=500
+x=np.linspace(0, 1000, num=n1)
+z=np.linspace(0, 1000, num=n2)
+sa=np.empty([n1, n2])
+for i1 in range(0,x.size):
+    for i2 in range(0,z.size):
+        temp=ad.dislocationStress(x[i1],y,z[i2])
+        sa[i2,i1]=temp[0,0]
+plt.imshow(sa, origin='lower',cmap='jet')
+plt.colorbar()
+plt.show()
 

@@ -37,7 +37,7 @@ use_stochasticForce=0;
 stochasticForceSeed=-1;
 useSubCycling=0;
 subcyclingBins=1 2 5 10 50 100;
-glideSolverType=pybind11; # type of glide solver (Galerkin or pybind11)
+glideSolverType=Galerkin; # type of glide solver (Galerkin or pybind11)
 pyModuleName=../../../../../python/MLglideSolver.py; # relative path to Python module
 
 ######################################

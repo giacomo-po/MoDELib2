@@ -1,9 +1,105 @@
 import sys, string, os, fileinput
+from fractions import Fraction
 import numpy as np
 # evl file
 
 class EVL:
     nodes=np.empty([0,0])
+        
+class PolyCrystalFile(dict):
+    materialFile=''
+    crystalStructure=''
+    absoluteTemperature=300.0
+    enablePartials=0
+    dislocationMobilityType='default'
+    meshFile='../../../MeshLibrary/unitCube.msh'
+    grain1globalX1=np.array([1,0,0]) # overwritten if alignToSlipSystem0=true
+    grain1globalX3=np.array([0,0,1]) # overwritten if alignToSlipSystem0=true
+    A=np.zeros((3,3))
+    invA=np.zeros((3,3))
+    alignToSlipSystem0=0
+    boxEdges=np.array([[1,0,0],[0,1,0],[0,0,1]]) # i-throw is the direction of i-th box edge. Overwritten if alignToSlipSystem0=true
+    boxScaling=np.array([1000,1000,1000]) # must be a vector of integers
+    C2G=np.zeros((3,3))
+    F=np.zeros((3,3))
+    X0=np.array([0,0,0])
+    periodicFaceIDs=np.array([0,1,2,3,4,5])
+    
+    def __init__(self, materialFile):
+        self.materialFile = materialFile
+        self.crystalStructure = getStringInFile(materialFile,'crystalStructure')
+        if self.crystalStructure == 'FCC':
+            self.A=np.array([[0.,1.,1.],[1.,0.,1.],[1.,1.,0.]])/np.sqrt(2.0)
+        elif self.crystalStructure == 'BCC':
+            self.A=np.array([[-1.,1.,1.],[1.,-1.,1.],[1.,1.,-1.]])/np.sqrt(3.0)
+        else:
+            raise Exception("Unkonwn crystalStructure "+self.crystalStructure)
+        self.invA=np.linalg.inv(self.A)
+        np.set_printoptions(precision=15)
+        
+    def write(self):
+        if self.alignToSlipSystem0:
+            if self.crystalStructure == 'BCC':
+                self.grain1globalX1=np.array([1,1,-1]) # overwrite
+                self.grain1globalX3=np.array([1,0,1])  # overwrite
+            elif self.crystalStructure == 'FCC':
+                self.grain1globalX1=np.array([0,1,1]) # overwrite
+                self.grain1globalX3=np.array([-1,1,-1])  # overwrite
+            else:
+                raise Exception("Unkonwn crystalStructure "+self.crystalStructure)
+        
+        x1=self.grain1globalX1/np.linalg.norm(self.grain1globalX1);
+        x3=self.grain1globalX3/np.linalg.norm(self.grain1globalX3);
+        self.C2G=np.array([x1,np.cross(x3,x1),x3]);
+        
+        if self.alignToSlipSystem0:
+            self.boxEdges=self.C2G
+        
+        # Find lattice vectors (columns of L) aligned to boxEdges
+        L=np.zeros((3,3))
+        B=self.invA@self.boxEdges.transpose()
+        for j in range(0, 3):
+            b=B[:,j]/np.max(np.abs(B[:,j]))
+            n=np.array([0,0,0], dtype=int)
+            d=np.array([1,1,1], dtype=int)
+            for i in range(0, 3):
+                f=Fraction(b[i]).limit_denominator(100)
+                n[i]=f.numerator
+                d[i]=f.denominator
+            dp=np.prod(d);
+            nr=np.array([1,1,1], dtype=int)
+            for i in range(0, 3):
+                nr[i]=n[i]*dp/d[i]
+            nr=nr/np.gcd.reduce(nr)
+            L[:,j]=self.A@nr.transpose()
+            self.F[:,j]=self.C2G@L[:,j]*self.boxScaling[j]
+
+        polyFile = open("polycrystal.txt", "w")
+        polyFile.write('materialFile='+self.materialFile+';\n')
+        polyFile.write('absoluteTemperature='+str(self.absoluteTemperature)+'; # [K] simulation temperature \n')
+        polyFile.write('enablePartials='+str(self.enablePartials)+'; # enables partial slip systems \n')
+        polyFile.write('dislocationMobilityType='+self.dislocationMobilityType+'; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal \n')
+        polyFile.write('meshFile='+self.meshFile+'; # mesh file \n')
+        polyFile.write('C2G1='+' '.join(map(str, self.C2G[0,:]))+'\n')
+        polyFile.write('     '+' '.join(map(str, self.C2G[1,:]))+'\n')
+        polyFile.write('     '+' '.join(map(str, self.C2G[2,:]))+'; # crystal rotation matrix \n')
+        polyFile.write('F='+' '.join(map(str, self.F[0,:]))+'\n')
+        polyFile.write('  '+' '.join(map(str, self.F[1,:]))+'\n')
+        polyFile.write('  '+' '.join(map(str, self.F[2,:]))+'; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) \n')
+        polyFile.write('X0='+' '.join(map(str, self.X0))+'; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) \n')
+        polyFile.write('periodicFaceIDs='+' '.join(map(str, self.periodicFaceIDs))+'; # IDs of faces labelled as periodic \n')
+
+        polyFile.write('gridSize=256 256; # size of grid on the glide plane\n');
+        polyFile.write('gridSpacing_SI=1e-10 1e-10; # [m] spacing of grid on the glide plane\n');
+        polyFile.write('solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise\n')
+        polyFile.write('solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;\n');
+        polyFile.write('solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;\n');
+        polyFile.write('stackingFaultNoiseMode=0; # 0=no noise\n');
+        polyFile.write('spreadLstress_A=1; # add comment\n');
+        polyFile.write('a_cai_A=1; # add comment\n');
+        polyFile.write('seed=0; # add comment\n');
+
+        polyFile.close()
 
 def readEVLtxt(filename):
     evlFile = open(filename+'.txt', "r")

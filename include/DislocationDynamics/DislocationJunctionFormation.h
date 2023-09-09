@@ -728,6 +728,8 @@ namespace model
                                 }
 
                                 const bool success = DN.contract(Ni.first, Nj.first);
+                                VerboseJunctions(1, "success= " << success << std::endl;);
+
                                 nContracted += success;
                                 if (!success)
                                 {

@@ -88,7 +88,6 @@ namespace model
         }
         else
         {
-            assert(false && "Not possible to snap for an infinite line");
             return 0.5*(P0+P1);
         }
         

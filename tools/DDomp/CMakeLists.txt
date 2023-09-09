@@ -29,7 +29,7 @@ if(USE_NOISE_GENERATOR)
 	message(STATUS "FFTW3_LIBRARY_DIRS: ${FFTW3_LIBRARY_DIRS}")
 	set(CMAKE_PREFIX_PATH ${FFTW3_LIBRARY_DIRS})
 	include_directories(${FFTW3_INCLUDE_DIRS})
-	include_directories(${BOOSTDir})
+#	include_directories(${BOOSTDir})
 	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
 endif()
 
