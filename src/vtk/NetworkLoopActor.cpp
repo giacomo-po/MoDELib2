@@ -223,11 +223,9 @@ void NetworkLoopActor::updateConfiguration()
 }
 
 void NetworkLoopActor::modify()
-{
-    
+{    
     loopActor->SetVisibility(showLoops->isChecked());
     areaActor->SetVisibility(slippedAreaBox->isChecked());
-    //            sliderSlippedArea->setEnabled(slippedAreaBox->isChecked());
     areaActor->GetProperty()->SetOpacity(sliderSlippedArea->value()/10.0);
     
     renderWindow->Render();

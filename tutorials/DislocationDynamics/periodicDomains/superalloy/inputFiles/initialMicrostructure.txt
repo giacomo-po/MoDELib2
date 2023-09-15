@@ -1,0 +1,5 @@
+#microstructureFile = periodicDipole.txt;
+#microstructureFile = periodicLoops.txt;
+microstructureFile = polyhedronInclusionIndividual.txt;
+microstructureFile = planarLoop1.txt;
+#microstructureFile = planarLoop2.txt;

@@ -73,6 +73,7 @@ class PolyCrystalFile(dict):
             nr=nr/np.gcd.reduce(nr)
             L[:,j]=self.A@nr.transpose()
             self.F[:,j]=self.C2G@L[:,j]*self.boxScaling[j]
+        #print(self.F)
 
         polyFile = open("polycrystal.txt", "w")
         polyFile.write('materialFile='+self.materialFile+';\n')
@@ -150,10 +151,36 @@ def setInputVariable(fileName,variable,newVal):
     with fileinput.FileInput(fileName, inplace=True) as file:
         for line in file:
             if variable in line:
+                foundPound=line.find('#');
                 foundEqual=line.find('=');
                 foundSemiCol=line.find(';');
-#                if line[0:foundEqual-1].strip()==variable:
-                oldVal=line[foundEqual+1:foundSemiCol]
-                line = line.replace(oldVal,newVal)
+#                print(foundPound, file=sys.stderr)
+#                print(foundEqual, file=sys.stderr)
+#                print(foundSemiCol, file=sys.stderr)
+                if (foundPound==-1 or foundPound > foundSemiCol) and (foundSemiCol>foundEqual):
+                    oldVal=line[foundEqual+1:foundSemiCol]
+                    line = line.replace(oldVal,newVal)
+                    print(line, file=sys.stderr)
             sys.stdout.write(line)
+            
+def setInputMatrix(fileName,variable,newVal):
+    with fileinput.FileInput(fileName, inplace=True) as file:
+        num_rows, num_cols = newVal.shape
+        writeLine=True
+        for line in file:
+            foundPound=line.find('#');
+            foundEqual=line.find('=');
+            foundSemiCol=line.find(';');
+            if (foundPound==-1 or foundPound > foundSemiCol) and foundEqual>0:
+                writeLine=True
+            if variable in line:
+                if foundPound==-1 and foundEqual>=len(variable):
+                    line=variable+'='
+                    for i in range(0,num_rows-1):
+                        line=line+' '.join(map(str, newVal[i,:]))+'\n'
+                    line=line+' '.join(map(str, newVal[num_rows-1,:]))+';\n'
+                    sys.stdout.write(line)
+                    writeLine=False # need to skip lines until we find another variable declaration to erase old matrix
+            if writeLine:
+                sys.stdout.write(line)
 

@@ -409,7 +409,7 @@ SolidSolutionNoiseGenerator::SolidSolutionNoiseGenerator(const std::string& nois
         if(k>0)
         {
 //            return a*k*sqrt(0.5*boost::math::cyl_bessel_k(2,a*k));
-            return a*k*sqrt(0.5*cyl_bessel_k(2,a*k));
+            return a*k*sqrt(0.5*std::cyl_bessel_k(2,a*k));
         }
         else
         {

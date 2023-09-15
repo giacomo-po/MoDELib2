@@ -129,39 +129,42 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
         std::cout<<magentaBoldColor<<"Generating polyhedral individual inclusions"<<defaultColor<<std::endl;
 
         const std::string mshFile=mg.traits().inputFilesFolder+"/"+this->parser.readString("mshFile",true);
-        const Eigen::Matrix<double,3,1> x0(this->parser.readMatrix<double>("x0",1,3,true).transpose());
+        const Eigen::Matrix<double,3,Eigen::Dynamic> X0(this->parser.readMatrixCols<double>("x0",3,true).transpose());
         const Eigen::Matrix<double,3,3> A(this->parser.readMatrix<double>("A",3,3,true));
-
-        std::cout<<"mshFile="<<mshFile<<std::endl;
-        GmshReader mshReader(mshFile);
-        
-        std::map<size_t,Eigen::Vector3d> scaledNodes;
-        
-        for(const auto& node : mshReader.nodes())
-        {
-            scaledNodes.emplace(node.first,A*(node.second-x0));
-        }
-        
-        std::map<size_t,std::vector<size_t>> faces;
-        size_t eleCounter(0);
-        for(const auto& ele : mshReader.elements())
-        {
-            if(ele.second.type==2)
-            {// 3-nodes triangle
-                faces.emplace(eleCounter,ele.second.nodeIDs);
-                eleCounter++;
-            }
-            
-        }
-
         const Eigen::Matrix<double,1,3*3> eT(this->parser.readMatrix<double>("inclusionsEigenDistortions",1,3*3,true));
         const double vrc(this->parser.readScalar<double>("inclusionVelocityReductionFactors",true));
         const int phaseIDs(this->parser.readScalar<int>("phaseIDs",true));
 
-        generateSingle(mg,scaledNodes,faces, eT, vrc,phaseIDs);
+        std::cout<<"mshFile="<<mshFile<<std::endl;
+        GmshReader mshReader(mshFile);
+        
+        
+        for(int j=0;j<X0.cols();++j)
+        {
+            std::map<size_t,Eigen::Vector3d> scaledNodes;
+            const auto x0(X0.col(j));
+            std::cout<<"x0="<<x0.transpose()<<std::endl;
+            for(const auto& node : mshReader.nodes())
+            {
+                scaledNodes.emplace(node.first,A*(node.second-x0));
+            }
+            
+            std::map<size_t,std::vector<size_t>> faces;
+            size_t eleCounter(0);
+            for(const auto& ele : mshReader.elements())
+            {
+                if(ele.second.type==2)
+                {// 3-nodes triangle
+                    faces.emplace(eleCounter,ele.second.nodeIDs);
+                    eleCounter++;
+                }
+                
+            }
 
-        
-        
+
+            generateSingle(mg,scaledNodes,faces, eT, vrc,phaseIDs);
+
+        }
         
     }
 

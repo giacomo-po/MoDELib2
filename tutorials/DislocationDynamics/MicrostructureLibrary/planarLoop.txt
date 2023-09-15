@@ -1,0 +1,9 @@
+type=PlanarLoop;
+style=individual;
+tag=plp1;
+loopNodes=0 0 0
+	  100 0 0
+	  100 100 0
+	  0 100 0;
+loopNormal=0 0 1; [-] number of side of loop polygon
+loopBurgers=1 0 0;

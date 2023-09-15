@@ -158,6 +158,10 @@ namespace model
         actor->SetVisibility(showInclusions->isChecked());
         actor->GetProperty()->SetOpacity(sliderInclusionOpacity->value()/10.0);
 
+        polyhedronActor->SetVisibility(showInclusions->isChecked());
+        polyhedronActor->GetProperty()->SetOpacity(sliderInclusionOpacity->value()/10.0);
+
+        
         renderWindow->Render();
     }
 

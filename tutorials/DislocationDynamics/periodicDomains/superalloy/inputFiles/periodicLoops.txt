@@ -1,0 +1,7 @@
+type=PeriodicLoop;
+style=individual;
+tag=plp0;
+periodicLoopSlipSystemIDs=22;
+periodicLoopRadii_SI=1e-7; [m] loop radii
+periodicLoopSides=30; [-] number of side of loop polygon
+periodicLoopCenters=0 0 0;

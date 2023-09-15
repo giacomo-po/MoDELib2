@@ -20,6 +20,7 @@
 #include <SphericalInclusionsGenerator.h>
 #include <PolyhedronInclusionsGenerator.h>
 #include <IrradiationDefectsGenerator.h>
+#include <PlanarLoopGenerator.h>
 
 #include <VTKGenerator.h>
 
@@ -78,6 +79,10 @@ void MicrostructureGenerator::readMicrostructureFile()
         else if(microstructureType=="PeriodicLoop")
         {
             success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
+        }
+        else if(microstructureType=="PlanarLoop")
+        {
+            success=this->emplace(tag,new PlanarLoopGenerator(microstructureFileName)).second;
         }
         else if(microstructureType=="PrismaticLoop")
         {
@@ -262,6 +267,14 @@ size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vec
                 const size_t sourceID(startNodeID +std::distance(polyNodes.begin(),sourceIter));
                 const size_t sinkID(startNodeID +std::distance(polyNodes.begin(),sinkIter));
                 configIO.polyhedronInclusionEdges().emplace_back(inclusionID,faceID,sourceID,sinkID);
+            }
+            else
+            {
+                std::cout<<"inclusionID="<<inclusionID<<std::endl;
+                std::cout<<"faceID="<<faceID<<std::endl;
+                std::cout<<"node "<<pair.second[k]<<" found? "<<(sourceIter!=polyNodes.end())<<std::endl;
+                std::cout<<"node "<<pair.second[k1]<<" found? "<<(sinkIter!=polyNodes.end())<<std::endl;
+                throw std::runtime_error("Cannot insert polyhedronInclusionEdge.");
             }
         }
     }
