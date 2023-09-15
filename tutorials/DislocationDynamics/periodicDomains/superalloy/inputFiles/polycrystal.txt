@@ -6,9 +6,9 @@ meshFile=../../../MeshLibrary/unitCube.msh; # mesh file
 C2G1=1.0 0.0 0.0
      0.0 1.0 0.0
      0.0 0.0 1.0; # crystal rotation matrix 
-F=0.0 -7071.067811865475 5656.8542494923795
-  7071.067811865475 7071.067811865475 5656.8542494923795
-  -7071.067811865475 0.0 5656.8542494923795; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
+F=5269.3597334021515 0.0 0.0
+  0.0 5269.3597334021515 0.0
+  0.0 0.0 5269.3597334021515; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
 X0=0.5 0.5 0.5; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) 
 periodicFaceIDs=0 1 2 3 4 5; # IDs of faces labelled as periodic 
 gridSize=256 256; # size of grid on the glide plane

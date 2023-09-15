@@ -143,7 +143,6 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
         {
             std::map<size_t,Eigen::Vector3d> scaledNodes;
             const auto x0(X0.col(j));
-            std::cout<<"x0="<<x0.transpose()<<std::endl;
             for(const auto& node : mshReader.nodes())
             {
                 scaledNodes.emplace(node.first,A*(node.second-x0));
