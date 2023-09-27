@@ -19,7 +19,7 @@ namespace model
 {
     FCClattice<3>::FCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile) :
     /* init */ SingleCrystalBase<dim>(getLatticeBasis(),Q)
-    /* init */,PlaneNormalContainerType(getPlaneNormals())
+    /* init */,PlaneNormalContainerType(getPlaneNormals(material,polyFile))
     /* init */,SlipSystemContainerType(getSlipSystems(material,polyFile,*this))
     /* init */,SecondPhaseContainerType(getSecondPhases(material,*this))
     {
@@ -55,7 +55,8 @@ namespace model
     }
 
 
-    std::vector<std::shared_ptr<LatticePlaneBase>> FCClattice<3>::getPlaneNormals() const
+    std::vector<std::shared_ptr<GlidePlaneBase>> FCClattice<3>::getPlaneNormals(const PolycrystallineMaterialBase& material,
+                                                                                const std::string& polyFile) const
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip plane normals of the FCC lattice
       */
@@ -68,14 +69,37 @@ namespace model
         LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
         LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),*this);
         
-        std::vector<std::shared_ptr<LatticePlaneBase>> temp;
+        std::vector<std::shared_ptr<GlidePlaneBase>> temp;
         
         if(enable111planes)
         {// {111} planes
-            temp.emplace_back(new LatticePlaneBase(a1,a3));           // is (-1, 1,-1) in cartesian
-            temp.emplace_back(new LatticePlaneBase(a3,a2));           // is ( 1,-1,-1) in cartesian
-            temp.emplace_back(new LatticePlaneBase(a2,a1));           // is (-1,-1, 1) in cartesian
-            temp.emplace_back(new LatticePlaneBase(a1-a3,a2-a3));     // is ( 1, 1, 1) in cartesian
+            
+            const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
+            const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
+            const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
+            
+            const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
+                                                         /*                        */ 0.0, 1.0,
+//                                                         /*                        */ 1.0,-1.0
+                                                         /*                        */ 1.0,1.0
+                                                         ).finished());
+            
+            const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
+                                               /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+                                               /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+                                               /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
+            
+            const int rotSymm(3);
+            const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
+            const Eigen::Matrix<double,2,2> A((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+                                                                             0.0,0.5*std::sqrt(3.0)).finished());
+//            const Eigen::Matrix<double,2,1> g2((Eigen::Matrix<double,2,1>()<<-0.5,0.5*std::sqrt(3.0)).finished());
+            std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(A,waveVectors,f,rotSymm,mirSymm));
+            
+            temp.emplace_back(new GlidePlaneBase(a1,a3,gammaSurface));           // is (-1, 1,-1) in cartesian
+            temp.emplace_back(new GlidePlaneBase(a3,a2,gammaSurface));           // is ( 1,-1,-1) in cartesian
+            temp.emplace_back(new GlidePlaneBase(a2,a1,gammaSurface));           // is (-1,-1, 1) in cartesian
+            temp.emplace_back(new GlidePlaneBase(a1-a3,a2-a3,gammaSurface));     // is ( 1, 1, 1) in cartesian
         }
         
         return temp;
@@ -112,71 +136,144 @@ namespace model
         
         const double d111(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,1.0).finished()).planeSpacing());
         
-        if(enablePartials)
+        for(const auto& planeBase : plN)
         {
-            
-            const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
-            const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
-            const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
-            
-            const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
-                                                         /*                        */ 0.0, 1.0,
-//                                                         /*                        */ 1.0,-1.0
-                                                         /*                        */ 1.0,1.0
-                                                         ).finished());
-            
-            const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
-                                               /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
-                                               /*                        */ 0.25,sqrt(3.0)/12.0,USF,
-                                               /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
-            
-            const int rotSymm(3);
-            const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
-            for(const auto& planeBase : plN)
-            {
-                if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
-                {// a {111} plane
-                    const auto& a1(planeBase->primitiveVectors.first);
-                    const auto& a3(planeBase->primitiveVectors.second);
+            if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
+            {// a {111} plane
+                const auto& a1(planeBase->primitiveVectors.first);
+                const auto& a3(planeBase->primitiveVectors.second);
+                
+                const auto b1(a1);
+                const auto b2(a3-a1);
+                const auto b3(a3*(-1));
 
-                    const auto b1(a1);
-                    const auto b2(a3-a1);
-                    const auto b3(a3*(-1));
-//                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*planeBase,waveVectors,f,rotSymm,mirSymm));
-                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors,f,rotSymm,mirSymm));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                std::vector<RationalLatticeDirection<3>> slipDirs;
+                if(enablePartials)
+                {
+                    slipDirs.emplace_back(Rational(1,3),b1-b3);
+                    slipDirs.emplace_back(Rational(1,3),b1-b2);
+                    slipDirs.emplace_back(Rational(1,3),b2-b1);
+                    slipDirs.emplace_back(Rational(1,3),b2-b3);
+                    slipDirs.emplace_back(Rational(1,3),b3-b2);
+                    slipDirs.emplace_back(Rational(1,3),b3-b1);
+                }
+                else
+                {
+                    slipDirs.emplace_back(Rational( 1,1),b1);
+                    slipDirs.emplace_back(Rational(-1,1),b1);
+                    slipDirs.emplace_back(Rational( 1,1),b2);
+                    slipDirs.emplace_back(Rational(-1,1),b2);
+                    slipDirs.emplace_back(Rational( 1,1),b3);
+                    slipDirs.emplace_back(Rational(-1,1),b3);
+                }
+                
+                for(const auto& slipDir : slipDirs)
+                {
+                    temp.emplace_back(new SlipSystem(*planeBase, slipDir,fccMobility,planeNoise));
                 }
             }
         }
-        else
-        {
-            
-            for(const auto& planeBase : plN)
-            {
-                if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
-                {// a {111} plane
-                    const auto& a1(planeBase->primitiveVectors.first);
-                    const auto& a3(planeBase->primitiveVectors.second);
-                    
-                    const auto b1(a1);
-                    const auto b2(a3-a1);
-                    const auto b3(a3*(-1));
-
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), b1,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2),b1*(-1),fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), b2,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3),b2*(-1),fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3*(-1),fccMobility,nullptr,planeNoise));
-
-                }
-            }
-        }
+        
+        
+//        if(enablePartials)
+//        {
+//
+////            const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
+////            const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
+////            const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
+////
+////            const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
+////                                                         /*                        */ 0.0, 1.0,
+//////                                                         /*                        */ 1.0,-1.0
+////                                                         /*                        */ 1.0,1.0
+////                                                         ).finished());
+////
+////            const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
+////                                               /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+////                                               /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+////                                               /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
+////
+////            const int rotSymm(3);
+////            const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
+//            for(const auto& planeBase : plN)
+//            {
+//                if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
+//                {// a {111} plane
+//                    const auto& a1(planeBase->primitiveVectors.first);
+//                    const auto& a3(planeBase->primitiveVectors.second);
+//
+//                    const auto b1(a1);
+//                    const auto b2(a3-a1);
+//                    const auto b3(a3*(-1));
+////                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*planeBase,waveVectors,f,rotSymm,mirSymm));
+////                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors,f,rotSymm,mirSymm));
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+////                    temp.emplace_back(new SlipSystem(GlidePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b1-b3),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b1-b2),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b2-b1),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b2-b3),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b3-b2),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),b3-b1),fccMobility,planeNoise));               // is (-1, 1,-1) in cartesian
+//
+//
+//                }
+//            }
+//        }
+//        else
+//        {
+//
+//            for(const auto& planeBase : plN)
+//            {
+//                if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
+//                {// a {111} plane
+//                    const auto& a1(planeBase->primitiveVectors.first);
+//                    const auto& a3(planeBase->primitiveVectors.second);
+//
+//                    const auto b1(a1);
+//                    const auto b2(a3-a1);
+//                    const auto b3(a3*(-1));
+//
+//                    std::vector<RationalLatticeDirection<3>> slipDirs;
+//                    if(enablePartials)
+//                    {
+//                        slipDirs.emplace_back(Rational(1,3),b1-b3);
+//                        slipDirs.emplace_back(Rational(1,3),b1-b2);
+//                        slipDirs.emplace_back(Rational(1,3),b2-b1);
+//                        slipDirs.emplace_back(Rational(1,3),b2-b3);
+//                        slipDirs.emplace_back(Rational(1,3),b3-b2);
+//                        slipDirs.emplace_back(Rational(1,3),b3-b1);
+//                    }
+//                    else
+//                    {
+//                        slipDirs.emplace_back(Rational( 1,1),b1);
+//                        slipDirs.emplace_back(Rational(-1,1),b1);
+//                        slipDirs.emplace_back(Rational( 1,1),b2);
+//                        slipDirs.emplace_back(Rational(-1,1),b2);
+//                        slipDirs.emplace_back(Rational( 1,1),b3);
+//                        slipDirs.emplace_back(Rational(-1,1),b3);
+//                    }
+//
+//                    for(const auto& slipDir : slipDirs)
+//                    {
+//                        temp.emplace_back(new SlipSystem(*planeBase, slipDir,fccMobility,planeNoise));
+//                    }
+//
+////                    temp.emplace_back(new SlipSystem(*planeBase, b1,fccMobility,planeNoise));
+////                    temp.emplace_back(new SlipSystem(*planeBase,b1*(-1),fccMobility,planeNoise));
+////                    temp.emplace_back(new SlipSystem(*planeBase, b2,fccMobility,planeNoise));
+////                    temp.emplace_back(new SlipSystem(*planeBase,b2*(-1),fccMobility,planeNoise));
+////                    temp.emplace_back(new SlipSystem(*planeBase,b3,fccMobility,planeNoise));
+////                    temp.emplace_back(new SlipSystem(*planeBase,b3*(-1),fccMobility,planeNoise));
+//
+//                }
+//            }
+//        }
         
         return temp;
     }
@@ -184,7 +281,7 @@ namespace model
 
 
     std::vector<std::shared_ptr<SecondPhase<3>>> FCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
-                                                                                const SlipSystemContainerType& slipSystems) const
+                                                                                const PlaneNormalContainerType& planeNormals) const
     {
         
         const std::vector<std::string> spNames(TextFileParser(material.materialFile).readArray<std::string>("secondPhases",true));
@@ -214,17 +311,22 @@ namespace model
                 const int rotSymm111(3);
                 const std::vector<Eigen::Matrix<double,2,1>> mirSymm111;
                 
-                std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>> gsMap;
-                for(const auto& ss : slipSystems)
-                {
-                    if(std::abs(ss->n.planeSpacing()-sqrt(6.0)/3)<FLT_EPSILON)
-                    {// a 111 plane
-                        const auto& b1(ss->n.primitiveVectors.first);
-                        const auto& b2(ss->n.primitiveVectors.second);
-//                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(ss->n,waveVectors111,f111,rotSymm111,mirSymm111));
-                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors111,f111,rotSymm111,mirSymm111));
+                const Eigen::Matrix<double,2,2> A111((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+                                                                                 0.0,0.5*std::sqrt(3.0)).finished());
+                std::shared_ptr<GammaSurface> gammaSurface111(new GammaSurface(A111,waveVectors111,f111,rotSymm111,mirSymm111));
 
-                        gsMap.emplace(ss,gammaSurface);
+                
+                std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
+                for(const auto& pn : planeNormals)
+                {
+                    if(std::abs(pn->planeSpacing()-sqrt(6.0)/3)<FLT_EPSILON)
+                    {// a 111 plane
+//                        const auto& b1(ss->n.primitiveVectors.first);
+//                        const auto& b2(ss->n.primitiveVectors.second);
+////                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(ss->n,waveVectors111,f111,rotSymm111,mirSymm111));
+//                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors111,f111,rotSymm111,mirSymm111));
+
+                        gsMap.emplace(pn.get(),gammaSurface111);
                     }
                 }
                 temp.emplace_back(new SecondPhase<3>("L12",gsMap));

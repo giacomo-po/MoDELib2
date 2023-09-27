@@ -11,7 +11,7 @@
 
 #include <iomanip>
 #include <LatticeVector.h>
-#include <LatticePlaneBase.h>
+//#include <LatticePlaneBase.h>
 #include <Plane.h>
 
 namespace model

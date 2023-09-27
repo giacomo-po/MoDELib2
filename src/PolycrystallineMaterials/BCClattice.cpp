@@ -19,7 +19,7 @@ namespace model
         
         BCClattice<3>::BCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile) :
         /* init */ SingleCrystalBase<dim>(getLatticeBasis(),Q)
-        /* init */,PlaneNormalContainerType(getPlaneNormals())
+        /* init */,PlaneNormalContainerType(getPlaneNormals(material,polyFile))
         /* init */,SlipSystemContainerType(getSlipSystems(material,polyFile,*this))
         /* init */,SecondPhaseContainerType(getSecondPhases(material,*this))
         {
@@ -62,7 +62,8 @@ namespace model
 
 
         
-        std::vector<std::shared_ptr<LatticePlaneBase>> BCClattice<3>::getPlaneNormals() const
+        std::vector<std::shared_ptr<GlidePlaneBase>> BCClattice<3>::getPlaneNormals(const PolycrystallineMaterialBase& ,
+                                                                                    const std::string& ) const
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the BCC lattice
           */
@@ -75,13 +76,13 @@ namespace model
             LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),*this);
             LatticeVectorType  y((VectorDimI()<<1,1,1).finished(),*this);
 
-            std::vector<std::shared_ptr<LatticePlaneBase>> temp;
-            temp.emplace_back(new LatticePlaneBase(a3,a1));
-            temp.emplace_back(new LatticePlaneBase( y,a2));
-            temp.emplace_back(new LatticePlaneBase(a2,a3));
-            temp.emplace_back(new LatticePlaneBase( y,a1));
-            temp.emplace_back(new LatticePlaneBase(a1,a2));
-            temp.emplace_back(new LatticePlaneBase( y,a3));
+            std::vector<std::shared_ptr<GlidePlaneBase>> temp;
+            temp.emplace_back(new GlidePlaneBase(a3,a1,nullptr));
+            temp.emplace_back(new GlidePlaneBase( y,a2,nullptr));
+            temp.emplace_back(new GlidePlaneBase(a2,a3,nullptr));
+            temp.emplace_back(new GlidePlaneBase( y,a1,nullptr));
+            temp.emplace_back(new GlidePlaneBase(a1,a2,nullptr));
+            temp.emplace_back(new GlidePlaneBase( y,a3,nullptr));
             
             return temp;
 
@@ -117,10 +118,23 @@ namespace model
                 {// a {110} plane
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
-                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase, a3,mobility110,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),mobility110,nullptr,planeNoise));
+                    
+                    std::vector<RationalLatticeDirection<3>> slipDirs;
+                    slipDirs.emplace_back(Rational( 1,1),a1);
+                    slipDirs.emplace_back(Rational(-1,1),a1);
+                    slipDirs.emplace_back(Rational( 1,1),a3);
+                    slipDirs.emplace_back(Rational(-1,1),a3);
+                    
+//                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase, a3,mobility110,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),mobility110,nullptr,planeNoise));
+                    
+                    for(const auto& slipDir : slipDirs)
+                    {
+                        temp.emplace_back(new SlipSystem(*planeBase, slipDir,mobility110,planeNoise));
+                    }
+
                 }
             }
 

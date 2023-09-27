@@ -15,7 +15,7 @@
 #include <assert.h>
 
 #include <LatticeModule.h>
-//#include <LatticePlaneBase.h>
+#include <GlidePlaneBase.h>
 //#include <LatticeVector.h>
 //#include <RationalLatticeDirection.h>
 #include <SlipSystem.h>
@@ -26,15 +26,15 @@ namespace model
     template<int dim>
     struct SecondPhase
     {
-        
+        typedef const Eigen::Matrix<double,dim,1> VectorDim;
         const std::string name;
-        const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>> gsMap;
+        const std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
                 
         SecondPhase(const std::string&,
-                    const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>>&);
+                    const std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>>&);
         
         
-        double misfitEnergy(const Eigen::Matrix<double,dim,1>& s,const std::shared_ptr<SlipSystem>& ss) const;
+        double misfitEnergy(const VectorDim& s,const GlidePlaneBase* const gpb) const;
         
     };
 

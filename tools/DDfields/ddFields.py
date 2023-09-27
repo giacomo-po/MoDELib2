@@ -27,7 +27,8 @@ z=np.linspace(0, 1000, num=n2)
 sa=np.empty([n1, n2])
 for i1 in range(0,x.size):
     for i2 in range(0,z.size):
-        temp=ad.dislocationStress(x[i1],y,z[i2])
+#        temp=ad.dislocationStress(x[i1],y,z[i2])
+#        temp=ad.solidAngle(x[i1],y,z[i2])
         sa[i2,i1]=temp[0,0]
 plt.imshow(sa, origin='lower',cmap='jet')
 plt.colorbar()

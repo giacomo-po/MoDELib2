@@ -49,7 +49,7 @@ namespace model
                 
         BCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile);
         static Eigen::Matrix<double,dim,dim> getLatticeBasis();
-        std::vector<std::shared_ptr<LatticePlaneBase>> getPlaneNormals() const;
+        std::vector<std::shared_ptr<GlidePlaneBase>> getPlaneNormals(const PolycrystallineMaterialBase& material,const std::string& polyFile) const;
         std::vector<std::shared_ptr<SlipSystem>> getSlipSystems(const PolycrystallineMaterialBase& material,const std::string& polyFile,const PlaneNormalContainerType& plN);
         std::vector<std::shared_ptr<SecondPhase<dim>>> getSecondPhases(const PolycrystallineMaterialBase& material,const PlaneNormalContainerType& plN);
         

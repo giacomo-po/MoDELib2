@@ -2,7 +2,6 @@ import sys
 sys.path.append("../../../../../python/")
 from modlibUtils import *
 
-
 # set up overall simulation size
 m=2 # there are (2m)^3 precipitates in the box
 materialFile='../../../MaterialsLibrary/Ni.txt'
@@ -20,11 +19,9 @@ print('volume fraction='+str(np.power(cubeSide/cubeSpacing,3)))
 pf=PolyCrystalFile(materialFile);
 pf.absoluteTemperature=300;
 pf.enablePartials=0;
-pf.dislocationMobilityType='default'
 pf.meshFile='../../../MeshLibrary/unitCube.msh'
 #pf.grain1globalX1=np.array([0,1,-1])     # global x1 axis. Overwritten if alignToSlipSystem0=true
 #pf.grain1globalX3=np.array([1,1,1])    # global x3 axis. Overwritten if alignToSlipSystem0=true
-#pf.alignToSlipSystem0=0
 #pf.boxEdges=np.array([[0,1,-1],[-1,1,0],[1,1,1]]) # i-throw is the direction of i-th box edge
 pf.boxScaling=np.array([nBox,nBox,nBox]) # must be a vector of integers
 pf.X0=np.array([0.5,0.5,0.5]) # Centering unitCube mesh. Mesh nodes X are mapped to x=F*(X-X0)
@@ -34,7 +31,6 @@ pf.write()
 # Edit polyhedron file
 polyhedronFile='polyhedronInclusionIndividual.txt'
 #C*s*(x+0.5)+C*L*[i j k]=C*s*(x+0.5+L/s*[i j k])
-# f=Vcube/Vbox --> f^1/3 = Lcube/Lbox  --> cubeSpacing=cubeSide/f^1/3
 X0=np.empty((0,3))
 for i in range(-m,m):
     for j in range(-m,m):
@@ -49,8 +45,8 @@ L1=200
 L2=(cubeSpacing-cubeSide)*np.sqrt(2.0)
 n1=np.array([1,1,1])@pf.C2G.transpose() # primary plane normal
 n1=n1/np.linalg.norm(n1)
-#b1=np.array([1,0,-1])@pf.C2G.transpose() # primary plane normal
-b1=np.array([0,1,-1])@pf.C2G.transpose() # primary plane normal
+b1=np.array([1,0,-1])@pf.C2G.transpose() # primary plane normal
+#b1=np.array([0,1,-1])@pf.C2G.transpose() # primary plane normal
 b1=b1/np.linalg.norm(b1)
 d1=np.array([0,1,-1])@pf.C2G.transpose() # direction along channel in primary plane
 d2=np.cross(n1,d1) # direction across channel in primary plane

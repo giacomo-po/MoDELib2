@@ -12,7 +12,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/LatticeGCD.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/LatticeLine.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/LatticePlane.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/LatticePlaneBase.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/LatticePlaneBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/LatticeTransitionMatrix.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/LatticeVector.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/LLL.cpp

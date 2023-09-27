@@ -12,6 +12,7 @@
 
 
 #include <DislocationLoopPatches.h>
+#include <Polygon2D.h>
 
 namespace model
 {
@@ -168,6 +169,46 @@ double DislocationLoopPatches<dim>::solidAngle(const VectorDim& x) const
         }
     }
     return temp;
+}
+
+template <int dim>
+int DislocationLoopPatches<dim>::windingNumber(const VectorDim& pt) const
+{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+  
+  */
+    int wn(0);
+    for(const auto& pair : localPatches())
+    {
+        if(pair.first->glidePlane)
+        {
+            if(pair.first->glidePlane->contains(pt))
+            {
+                const auto localPt(pair.first->glidePlane->localPosition(pt));
+                wn+=Polygon2D::windingNumber(localPt,pair.second);
+            }
+        }
+    }
+    return wn;
+}
+
+template <int dim>
+int DislocationLoopPatches<dim>::windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane) const
+{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+  
+  */
+    int wn(0);
+    for(const auto& pair : localPatches())
+    {
+        if(pair.first->glidePlane)
+        {
+            if(pair.first->glidePlane==ptPlane)
+            {
+                //const auto localPt(pair.first->glidePlane->localPosition(pt));
+                wn+=Polygon2D::windingNumber(localPt,pair.second);
+            }
+        }
+    }
+    return wn;
 }
 
 template <int dim>

@@ -37,7 +37,8 @@ namespace model
         /* init */,segments(new NetworkLinkActor(renWin,ren,configFields))
         /* init */,loops(new NetworkLoopActor(renWin,ren,configFields))
         /* init */,inclusions(new InclusionActor(renWin,ren,configFields))
-        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
+//        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
+        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,configFields))
         /* init */,quadrature(new QuadratureActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
         /* init */,chartActor(new ChartActor(ddBase.simulationParameters.traitsIO,renderWindow,ren))
         /* init */,ddField(new DDFieldWidget(renderWindow,ren,configFields))
@@ -180,9 +181,11 @@ namespace model
                 segments->updateConfiguration(nodes->nodePolyData);
                 loops->updateConfiguration();
                 inclusions->updateConfiguration();
-                glidePlanes->updateConfiguration(*this);
+//                glidePlanes->updateConfiguration(*this);
+                glidePlanes->updateConfiguration();
                 quadrature->updateConfiguration(*this);
                 chartActor->updateConfiguration(frameID);
+//                ddField->compute(); // this causes segFault at DDFieldWidget::plotField::renWin->Render();
                 
                 if(saveImage->isChecked())
                 {

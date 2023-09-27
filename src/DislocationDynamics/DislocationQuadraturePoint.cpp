@@ -50,6 +50,7 @@ DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint(const LinkTyp
 /* init */,elasticEnergyPerLength(0.0)
 /* init */,coreEnergyPerLength(0.0)
 /* init */,inclusionID(-1)
+/* init */,slipVectors(std::make_pair(VectorDim::Zero(),VectorDim::Zero()))
 {
     for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
     {// Add EshelbyInclusions stress
@@ -84,6 +85,7 @@ DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint(const size_t 
 /* init */,elasticEnergyPerLength(0.0)
 /* init */,coreEnergyPerLength(0.0)
 /* init */,inclusionID(-1)
+/* init */,slipVectors(std::make_pair(VectorDim::Zero(),VectorDim::Zero()))
 {
     
 }
@@ -108,6 +110,7 @@ DislocationQuadraturePoint<dim,corder>::DislocationQuadraturePoint() :
 /* init */,elasticEnergyPerLength(0.0)
 /* init */,coreEnergyPerLength(0.0)
 /* init */,inclusionID(-1)
+/* init */,slipVectors(std::make_pair(VectorDim::Zero(),VectorDim::Zero()))
 {
     
 }
@@ -553,6 +556,73 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
         {
             const auto& glidePlane(**parentSegment.glidePlanes().begin());
             const auto& slipSystem(*parentSegment.slipSystem());
+            
+            
+            // Add stacking fault force
+            const double eps=1.0e-2;
+                    VectorDim outDir(parentSegment.unitDirection().cross(slipSystem.unitNormal));
+                    const double outDirNorm(outDir.norm());
+                    if(outDirNorm>FLT_EPSILON)
+                    {
+                        outDir/=outDirNorm;
+                        std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
+                        
+                        for(const auto& weakSourceLoop : parentSegment.network().loops())
+                        {
+                            const auto sourceLoop(weakSourceLoop.second.lock());
+                            if(sourceLoop->slipSystem())
+                            {
+                                if(slipSystem.n==sourceLoop->slipSystem()->n) // "opposite" slip systems have same normal and opposite slip directions, so this is ok
+                                {// same glide plane family
+                                    
+                                    for(auto& qPoint : quadraturePoints())
+                                    {
+                                        if(qPoint.inclusionID>=0 || sourceLoop->slipSystem()->isPartial())
+                                        {// point inside inclusion, or contribution of a partial slip system
+                                            qPoint.slipVectors.first -=sourceLoop->patches().windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector. windingNumber will skip parallel planes
+                                            qPoint.slipVectors.second-=sourceLoop->patches().windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector. windingNumber will skip parallel planes
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        for(auto& qPoint : quadraturePoints())
+                        {
+                            if((qPoint.slipVectors.first-qPoint.slipVectors.second).squaredNorm()>FLT_EPSILON)
+                            {
+//                                auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+                                if(qPoint.inclusionID<0)
+                                {// qPoint is not inside an inclusion, we use the matrix gamma-surface
+
+                                    const double gamma1(slipSystem.n.misfitEnergy(qPoint.slipVectors.first));  // outer point
+                                    const double gamma2(slipSystem.n.misfitEnergy(qPoint.slipVectors.second)); // inner point
+
+                                    double gammaNoise(0.0);
+                                    if(slipSystem.planeNoise)
+                                    {
+                                            gammaNoise=std::get<2>(slipSystem.gridInterp(qPoint.r-glidePlane.P));
+                                    }
+                                    qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
+                                }
+                                else
+                                {// qPoint is inside an inclusion, we use the inclusion gamma-surface
+
+                                    const auto& secondPhase(parentSegment.network().eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
+                                    if(secondPhase)
+                                    {
+                                            const double gamma1(secondPhase->misfitEnergy(qPoint.slipVectors.first ,&slipSystem.n));  // outer point
+                                            const double gamma2(secondPhase->misfitEnergy(qPoint.slipVectors.second,&slipSystem.n)); // inner point
+                                        qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                
+            
+            
+            // Add solid-soution noise
             if(slipSystem.planeNoise)
             {
                 for (auto& qPoint : quadraturePoints())

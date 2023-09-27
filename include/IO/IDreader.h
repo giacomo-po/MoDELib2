@@ -79,7 +79,7 @@ namespace model
                 std::string line;
 
 
-				size_t row = 0;
+//				size_t row = 0;
 				while (std::getline(ifs, line))
                 {
 					std::stringstream ss(line);
@@ -108,7 +108,7 @@ namespace model
 					
 					this->emplace(key,value);
 					
-					row++;
+//					row++;
 				}
 				
 				

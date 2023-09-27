@@ -22,7 +22,7 @@ namespace model
     
     template<int dim>
     SecondPhase<dim>::SecondPhase(const std::string& _name,
-                                  const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>>& _gsMap) :
+                                  const std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>>& _gsMap) :
     /* init */ name(_name)
     /* init */,gsMap(_gsMap)
     {
@@ -32,7 +32,7 @@ namespace model
     }
 
     template<int dim>
-    double SecondPhase<dim>::misfitEnergy(const Eigen::Matrix<double,dim,1>& s,const std::shared_ptr<SlipSystem>& ss) const
+    double SecondPhase<dim>::misfitEnergy(const VectorDim& b,const GlidePlaneBase* const gpb) const
     {
         
 //        std::cout<<"inPlane="<<n<<std::endl;
@@ -43,10 +43,15 @@ namespace model
 //            std::cout<<pair.first<<std::endl;
 //        }
         
-        const auto gammaIter(gsMap.find(ss));
+        const auto gammaIter(gsMap.find(gpb));
         if(gammaIter!=gsMap.end())
         {
-            return gammaIter->second->operator()(s);
+            const VectorDim bL(gpb->G2L*b);
+            if(std::fabs(bL(2))>FLT_EPSILON)
+            {
+                throw std::runtime_error("SLIP VECTOR NOT ON GlidePlaneBase");
+            }
+            return gammaIter->second->operator()(bL.template segment<2>(0));
         }
         else
         {

@@ -78,10 +78,10 @@ namespace model
     }
 
     template <int dim>
-    std::deque<const LatticePlaneBase*> Grain<dim>::conjugatePlaneNormal(const LatticeVectorType& B,
+    std::deque<const GlidePlaneBase*> Grain<dim>::conjugatePlaneNormal(const LatticeVectorType& B,
                                                                          const ReciprocalLatticeDirectionType& N) const
     {
-        std::deque<const LatticePlaneBase*> temp;
+        std::deque<const GlidePlaneBase*> temp;
         if(B.dot(N)==0) // not sessile
         {
             for (const auto& planeNormal : singleCrystal->planeNormals())

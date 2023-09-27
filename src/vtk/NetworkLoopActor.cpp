@@ -197,7 +197,6 @@ void NetworkLoopActor::updateConfiguration()
     // Slipped area
     vtkNew<vtkPoints> areaPoints;
     vtkNew<vtkCellArray> areaPolygons;
-    
     size_t areaPointID(0);
     for(const auto& currentPatches : configFields.loopPatches())
     {

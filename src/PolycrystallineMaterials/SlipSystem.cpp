@@ -13,7 +13,7 @@
 #include <memory>
 #include <assert.h>
 #include <LatticeModule.h>
-//#include <LatticePlaneBase.h>
+//#include <GlidePlaneBase.h>
 //#include <LatticeVector.h>
 //#include <RationalLatticeDirection.h>
 #include <DislocationMobilityBase.h>
@@ -22,23 +22,67 @@
 namespace model
 {
 
-    SlipSystem::SlipSystem(const LatticePlaneBase& n_in,
-                           const LatticeVector<3>& slip_in,
+//    SlipSystem::SlipSystem(const GlidePlaneBase& n_in,
+//                           const LatticeVector<3>& slip_in,
+//                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+////                           const std::shared_ptr<GammaSurface>& gammaSurface_in,
+//                           const std::shared_ptr<GlidePlaneNoise>& planeNoise_in):
+//    /* init */ n(n_in)
+//    /* init */,s(slip_in)
+//    /* init */,unitNormal(n.cartesian().normalized())
+//    /* init */,unitSlip(s.cartesian().normalized())
+//    /* init */,unitSlipFull(n.primitiveVectors.first.cartesian().normalized())
+//    /* init */,G2Lfull((MatrixDim()<<unitSlipFull,unitNormal.cross(unitSlipFull),unitNormal).finished().transpose())
+//    /* init */,mobility(mobility_in)
+////    /* init */,gammaSurface(gammaSurface_in)
+//    /* init */,planeNoise(planeNoise_in)
+//    {
+//
+//        std::cout<<greenColor<<"Creating SlipSystem "<<this->sID<<defaultColor<<std::endl;
+//        std::cout<<"  s= "<<std::setprecision(15)<<std::scientific<<s.cartesian().transpose()<<std::endl;
+//        std::cout<<"  n= "<<std::setprecision(15)<<std::scientific<<n.cartesian().transpose()<<std::endl;
+//        std::cout<<"  mobility= "<<mobility->name<<std::endl;
+//
+//
+//        if(s.dot(n)!=0)
+//        {
+//            throw std::runtime_error("SlipSystem: PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
+//        }
+//        if(!mobility)
+//        {
+//            throw std::runtime_error("SlipSystem: MOBILITY CANNOT BE A NULLPTR.");
+//        }
+//
+//        if((G2Lfull*G2Lfull.transpose()-MatrixDim::Identity()).squaredNorm()>FLT_EPSILON)
+//        {
+//            throw std::runtime_error("G2Lfull is not orthogonal.");
+//        }
+//    }
+
+    SlipSystem::SlipSystem(const GlidePlaneBase& n_in,
+                           const RationalLatticeDirection<3>& slip_in,
                            const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                           const std::shared_ptr<GammaSurface>& gammaSurface_in,
+//                           const std::shared_ptr<GammaSurface>& gammaSurface_in,
                            const std::shared_ptr<GlidePlaneNoise>& planeNoise_in):
     /* init */ n(n_in)
     /* init */,s(slip_in)
     /* init */,unitNormal(n.cartesian().normalized())
     /* init */,unitSlip(s.cartesian().normalized())
     /* init */,unitSlipFull(n.primitiveVectors.first.cartesian().normalized())
-    /* init */,G2Lfull((MatrixDim()<<unitSlipFull,unitNormal.cross(unitSlipFull),unitNormal).finished().transpose())
+    /* init */,G2Lfull((MatrixDim()<<unitSlipFull,unitNormal.cross(unitSlipFull),unitNormal).finished())
     /* init */,mobility(mobility_in)
-    /* init */,gammaSurface(gammaSurface_in)
+//    /* init */,gammaSurface(gammaSurface_in)
     /* init */,planeNoise(planeNoise_in)
     {
         
-        std::cout<<greenColor<<"Creating SlipSystem "<<this->sID<<defaultColor<<std::endl;
+        if(isPartial())
+        {
+            std::cout<<greenColor<<"Creating partial SlipSystem "<<this->sID<<defaultColor<<std::endl;
+        }
+        else
+        {
+            std::cout<<greenColor<<"Creating full SlipSystem "<<this->sID<<defaultColor<<std::endl;
+        }
         std::cout<<"  s= "<<std::setprecision(15)<<std::scientific<<s.cartesian().transpose()<<std::endl;
         std::cout<<"  n= "<<std::setprecision(15)<<std::scientific<<n.cartesian().transpose()<<std::endl;
         std::cout<<"  mobility= "<<mobility->name<<std::endl;
@@ -57,38 +101,7 @@ namespace model
         {
             throw std::runtime_error("G2Lfull is not orthogonal.");
         }
-    }
 
-    SlipSystem::SlipSystem(const LatticePlaneBase& n_in,
-                           const RationalLatticeDirection<3>& slip_in,
-                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                           const std::shared_ptr<GammaSurface>& gammaSurface_in,
-                           const std::shared_ptr<GlidePlaneNoise>& planeNoise_in):
-    /* init */ n(n_in)
-    /* init */,s(slip_in)
-    /* init */,unitNormal(n.cartesian().normalized())
-    /* init */,unitSlip(s.cartesian().normalized())
-    /* init */,unitSlipFull(n.primitiveVectors.first.cartesian().normalized())
-    /* init */,G2Lfull((MatrixDim()<<unitSlipFull,unitNormal.cross(unitSlipFull),unitNormal).finished())
-    /* init */,mobility(mobility_in)
-    /* init */,gammaSurface(gammaSurface_in)
-    /* init */,planeNoise(planeNoise_in)
-    {
-        
-        std::cout<<greenColor<<"Creating partial SlipSystem "<<this->sID<<defaultColor<<std::endl;
-        std::cout<<"  s= "<<std::setprecision(15)<<std::scientific<<s.cartesian().transpose()<<std::endl;
-        std::cout<<"  n= "<<std::setprecision(15)<<std::scientific<<n.cartesian().transpose()<<std::endl;
-        std::cout<<"  mobility= "<<mobility->name<<std::endl;
-        
-        
-        if(s.dot(n)!=0)
-        {
-            throw std::runtime_error("SlipSystem: PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
-        }
-        if(!mobility)
-        {
-            throw std::runtime_error("SlipSystem: MOBILITY CANNOT BE A NULLPTR.");
-        }
     }
 
     bool SlipSystem::isPartial() const
@@ -110,10 +123,10 @@ namespace model
         }
     }
 
-    double SlipSystem::misfitEnergy(const Eigen::Matrix<double,3,1>& b)
-    {
-        return gammaSurface? gammaSurface->operator()(b) : 0.0;
-    }
+//    double SlipSystem::misfitEnergy(const Eigen::Matrix<double,3,1>& b)
+//    {
+//        return gammaSurface? gammaSurface->operator()(b) : 0.0;
+//    }
 
     Eigen::Matrix<double,2,1> SlipSystem::globalToLocal(const VectorDim& x) const
     {

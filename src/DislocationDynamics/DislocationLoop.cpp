@@ -40,84 +40,86 @@ DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
     //        assert(this->flow().dot(glidePlane->n)==0);
 }
 
-template <int dim, short unsigned int corder>
-void DislocationLoop<dim,corder>::computeStackingFaultForces()
-{
-    if(this->slipSystem() && this->glidePlane)
-    {
-        const double eps=1.0e-2;
-
-        for(const auto& loopLink : this->loopLinks())
-        {
-            if(loopLink->networkLink())
-            {
-                
-                VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(this->rightHandedUnitNormal()));
-                const double outDirNorm(outDir.norm());
-                if(outDirNorm>FLT_EPSILON)
-                {
-                    outDir/=outDirNorm;
-                    std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
-                    
-                    for(const auto& weakSourceLoop : this->network().loops())
-                    {
-                        const auto sourceLoop(weakSourceLoop.second.lock());
-                        if(sourceLoop->slipSystem())
-                        {
-                            if(this->slipSystem()->n==sourceLoop->slipSystem()->n)
-                            {// same glide plane family
-                                
-                                for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-                                {
-                                    const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-                                    qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-                                    qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-
-                                }
-                            }
-                        }
-                    }
-                    
-                    for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-                    {
-                        if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-                        {
-                            auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-                            if(qPoint.inclusionID<0)
-                            {// qPoint is not inside an inclusion, we use the matrix gamma-surface
-
-                                const double gamma1(this->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-                                const double gamma2(this->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-
-                                double gammaNoise(0.0);
-                                if(this->slipSystem()->planeNoise)
-                                {
-                                    if(loopLink->networkLink()->glidePlanes().size()==1)
-                                    {
-                                        const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
-                                        gammaNoise=std::get<2>(this->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
-                                    }
-                                }
-                                qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
-                            }
-                            else
-                            {// qPoint is inside an inclusion, we use the inclusion gamma-surface
-
-                                const auto& secondPhase(this->network().eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
-                                if(secondPhase)
-                                {
-                                        const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,this->slipSystem()));  // outer point
-                                        const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,this->slipSystem())); // inner point
-                                    qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+//template <int dim, short unsigned int corder>
+//void DislocationLoop<dim,corder>::computeStackingFaultForces()
+//{
+//    if(this->slipSystem() && this->glidePlane)
+//    {
+//        const double eps=1.0e-2;
+//
+//        for(const auto& loopLink : this->loopLinks())
+//        {
+//            if(loopLink->networkLink())
+//            {
+//                
+//                VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(this->rightHandedUnitNormal()));
+//                const double outDirNorm(outDir.norm());
+//                if(outDirNorm>FLT_EPSILON)
+//                {
+//                    outDir/=outDirNorm;
+//                    std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
+//                    
+//                    for(const auto& weakSourceLoop : this->network().loops())
+//                    {
+//                        const auto sourceLoop(weakSourceLoop.second.lock());
+//                        if(sourceLoop->slipSystem())
+//                        {
+//                            if(this->slipSystem()->n==sourceLoop->slipSystem()->n) // "opposite" slip systems have same normal and opposite slip directions, so this is ok
+//                            {// same glide plane family
+//                                
+//                                for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+//                                {
+//                                    const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+//                                    if(qPoint.inclusionID>=0 || sourceLoop->slipSystem()->isPartial())
+//                                    {// point inside inclusion, or contribution of a partial slip system
+//                                        qPointSlip[q].first -=sourceLoop->patches().windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector. windingNumber will skip parallel planes
+//                                        qPointSlip[q].second-=sourceLoop->patches().windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector. windingNumber will skip parallel planes
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    
+//                    for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+//                    {
+//                        if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
+//                        {
+//                            auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+//                            if(qPoint.inclusionID<0)
+//                            {// qPoint is not inside an inclusion, we use the matrix gamma-surface
+//
+//                                const double gamma1(this->slipSystem()->n.misfitEnergy(qPointSlip[q].first));  // outer point
+//                                const double gamma2(this->slipSystem()->n.misfitEnergy(qPointSlip[q].second)); // inner point
+//
+//                                double gammaNoise(0.0);
+//                                if(this->slipSystem()->planeNoise)
+//                                {
+//                                    if(loopLink->networkLink()->glidePlanes().size()==1)
+//                                    {
+//                                        const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
+//                                        gammaNoise=std::get<2>(this->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
+//                                    }
+//                                }
+//                                qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)/loopLink->networkLink()->loops().size()*outDir;
+//                            }
+//                            else
+//                            {// qPoint is inside an inclusion, we use the inclusion gamma-surface
+//
+//                                const auto& secondPhase(this->network().eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
+//                                if(secondPhase)
+//                                {
+//                                        const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,&this->slipSystem()->n));  // outer point
+//                                        const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,&this->slipSystem()->n)); // inner point
+//                                    qPoint.stackingFaultForce+= -(gamma2-gamma1)/loopLink->networkLink()->loops().size()*outDir;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 
 template <int dim, short unsigned int corder>
@@ -278,45 +280,45 @@ void DislocationLoop<dim,corder>::crossSlipBranches(std::deque<std::pair<std::de
     
 }
 
-template <int dim, short unsigned int corder>
-int DislocationLoop<dim,corder>::windingNumber(const VectorDim& pt)
-{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
-  
-  */
-    int wn(0);
-    for(const auto& pair : _patches.localPatches())
-    {
-        if(pair.first->glidePlane)
-        {
-            if(pair.first->glidePlane->contains(pt))
-            {
-                const auto localPt(pair.first->glidePlane->localPosition(pt));
-                wn+=Polygon2D::windingNumber(localPt,pair.second);
-            }
-        }
-    }
-    return wn;
-}
-
-template <int dim, short unsigned int corder>
-int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane)
-{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
-  
-  */
-    int wn(0);
-    for(const auto& pair : _patches.localPatches())
-    {
-        if(pair.first->glidePlane)
-        {
-            if(pair.first->glidePlane==ptPlane)
-            {
-                //const auto localPt(pair.first->glidePlane->localPosition(pt));
-                wn+=Polygon2D::windingNumber(localPt,pair.second);
-            }
-        }
-    }
-    return wn;
-}
+//template <int dim, short unsigned int corder>
+//int DislocationLoop<dim,corder>::windingNumber(const VectorDim& pt)
+//{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+//  
+//  */
+//    int wn(0);
+//    for(const auto& pair : _patches.localPatches())
+//    {
+//        if(pair.first->glidePlane)
+//        {
+//            if(pair.first->glidePlane->contains(pt))
+//            {
+//                const auto localPt(pair.first->glidePlane->localPosition(pt));
+//                wn+=Polygon2D::windingNumber(localPt,pair.second);
+//            }
+//        }
+//    }
+//    return wn;
+//}
+//
+//template <int dim, short unsigned int corder>
+//int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane)
+//{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+//  
+//  */
+//    int wn(0);
+//    for(const auto& pair : _patches.localPatches())
+//    {
+//        if(pair.first->glidePlane)
+//        {
+//            if(pair.first->glidePlane==ptPlane)
+//            {
+//                //const auto localPt(pair.first->glidePlane->localPosition(pt));
+//                wn+=Polygon2D::windingNumber(localPt,pair.second);
+//            }
+//        }
+//    }
+//    return wn;
+//}
 
 
 

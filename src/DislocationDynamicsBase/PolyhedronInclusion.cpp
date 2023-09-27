@@ -55,7 +55,7 @@ namespace model
     /* init */,nodes(nodesMap)
     /* init */,faces(getFaces(nodesMap,faceIDs))
     {
-        std::cout<<"Creating PolyhedronInclusion "<<this->sID<<" (type "<<this->phaseID<<"):\n eT="<<this->eT<<std::endl;
+//        std::cout<<"Creating PolyhedronInclusion "<<this->sID<<" (type "<<this->phaseID<<"):\n eT="<<this->eT<<std::endl;
         
         for(const auto& face : faces)
         {

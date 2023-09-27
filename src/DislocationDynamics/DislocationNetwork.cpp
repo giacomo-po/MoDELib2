@@ -720,92 +720,20 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
         std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
         
         
-        const auto t1 = std::chrono::system_clock::now();
-        std::cout <<"Computing stacking fault forces at quadrature points (" << nThreads << " threads) " << std::flush;
-//        const double eps=1.0e-2;
-#ifdef _OPENMP
-#pragma omp parallel for // THERE COULD BE A WRITING RACE HERE SINCE DIFFERENT LOOPS MAY TRY TO SUM TO THE SAME GAUSS POINT
-#endif
-        for (size_t k = 0; k < this->loops().size(); ++k)
-        {
-            auto loopIter(this->loops().begin());
-            std::advance(loopIter, k);
-            const auto& fieldLoop(loopIter->second.lock());
-            fieldLoop->computeStackingFaultForces();
-//            if(fieldLoop->slipSystem() && fieldLoop->glidePlane)
-//            {
-//                for(const auto& loopLink : fieldLoop->loopLinks())
-//                {
-//                    if(loopLink->networkLink())
-//                    {
-//
-//                        VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(fieldLoop->rightHandedUnitNormal()));
-//                        const double outDirNorm(outDir.norm());
-//                        if(outDirNorm>FLT_EPSILON)
-//                        {
-//                            outDir/=outDirNorm;
-//                            std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
-//
-//                            for(const auto& weakSourceLoop : this->loops())
-//                            {
-//                                const auto sourceLoop(weakSourceLoop.second.lock());
-//                                if(sourceLoop->slipSystem())
-//                                {
-//                                    if(fieldLoop->slipSystem()->n==sourceLoop->slipSystem()->n)
-//                                    {// same glide plane family
-//
-//                                        for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-//                                        {
-//                                            const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-//                                            qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-//                                            qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-//
-//                                        }
-//                                    }
-//                                }
-//                            }
-//
-//                            for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-//                            {
-//                                if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-//                                {
-//                                    auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-//                                    if(qPoint.inclusionID<0)
-//                                    {// qPoint is not inside an inclusion, we use the matrix gamma-surface
-//
-//                                        const double gamma1(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-//                                        const double gamma2(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-//
-//                                        double gammaNoise(0.0);
-//                                        if(fieldLoop->slipSystem()->planeNoise)
-//                                        {
-//                                            if(loopLink->networkLink()->glidePlanes().size()==1)
-//                                            {
-//                                                const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
-//                                                gammaNoise=std::get<2>(fieldLoop->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
-//                                            }
-//                                        }
-//                                        qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
-//                                    }
-//                                    else
-//                                    {// qPoint is inside an inclusion, we use the inclusion gamma-surface
-//
-//                                        const auto& secondPhase(eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
-//                                        if(secondPhase)
-//                                        {
-//                                                const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,fieldLoop->slipSystem()));  // outer point
-//                                                const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,fieldLoop->slipSystem())); // inner point
-//                                            qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-        }
-        std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
+//        const auto t1 = std::chrono::system_clock::now();
+//        std::cout <<"Computing stacking fault forces at quadrature points (" << nThreads << " threads) " << std::flush;
+////        const double eps=1.0e-2;
+//#ifdef _OPENMP
+//#pragma omp parallel for // THERE COULD BE A WRITING RACE HERE SINCE DIFFERENT LOOPS MAY TRY TO SUM TO THE SAME GAUSS POINT
+//#endif
+//        for (size_t k = 0; k < this->loops().size(); ++k)
+//        {
+//            auto loopIter(this->loops().begin());
+//            std::advance(loopIter, k);
+//            const auto& fieldLoop(loopIter->second.lock());
+//            fieldLoop->computeStackingFaultForces();
+//        }
+//        std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
         
         
         const auto t2 = std::chrono::system_clock::now();

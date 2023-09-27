@@ -17,6 +17,7 @@
 
 #include <TerminalColors.h> // defines mode::cout
 #include <LatticeModule.h>
+#include <GlidePlaneBase.h>
 #include <SlipSystem.h>
 #include <SecondPhase.h>
 
@@ -33,7 +34,7 @@ namespace model
         
         typedef Lattice<dim> LatticeType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        typedef std::vector<std::shared_ptr<LatticePlaneBase>> PlaneNormalContainerType;
+        typedef std::vector<std::shared_ptr<GlidePlaneBase>> PlaneNormalContainerType;
         typedef std::vector<std::shared_ptr<SlipSystem>> SlipSystemContainerType;
         typedef std::vector<std::shared_ptr<SecondPhase<dim>>> SecondPhaseContainerType;
         

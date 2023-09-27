@@ -16,6 +16,7 @@
 #include <MeshRegionObserver.h>
 #include <MeshRegion.h>
 #include <LatticeModule.h>
+#include <GlidePlaneBase.h>
 //#include <PeriodicElement.h>
 #include <PolycrystallineMaterialBase.h>
 #include <SlipSystem.h>
@@ -71,7 +72,7 @@ namespace model
               );
         const GrainBoundaryContainerType& grainBoundaries() const;
         GrainBoundaryContainerType& grainBoundaries();
-        std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
+        std::deque<const GlidePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
                                                                  const ReciprocalLatticeDirectionType& N) const;
         
     };

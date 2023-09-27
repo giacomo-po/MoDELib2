@@ -166,6 +166,8 @@ def setInputVariable(fileName,variable,newVal):
 def setInputMatrix(fileName,variable,newVal):
     with fileinput.FileInput(fileName, inplace=True) as file:
         num_rows, num_cols = newVal.shape
+        if num_rows==1:
+            raise ValueError(variable+' is a vector. Use setInputVector instead of setInputMatrix')
         writeLine=True
         for line in file:
             foundPound=line.find('#');
@@ -183,4 +185,15 @@ def setInputMatrix(fileName,variable,newVal):
                     writeLine=False # need to skip lines until we find another variable declaration to erase old matrix
             if writeLine:
                 sys.stdout.write(line)
+
+def setInputVector(fileName,variable,newVal,newCom):
+    with fileinput.FileInput(fileName, inplace=True) as file:
+        for line in file:
+            foundPound=line.find('#');
+            foundEqual=line.find('=');
+            foundSemiCol=line.find(';');
+            if (foundPound==-1 or foundPound > foundSemiCol) and foundEqual>0 and variable in line:
+                line=variable+'='+' '.join(map(str, newVal))+'; # '+newCom+'\n'
+            sys.stdout.write(line)
+
 

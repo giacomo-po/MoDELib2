@@ -115,7 +115,7 @@ namespace model
             if(faceIter!=faceMap.end())
             {
                 const auto& faces(faceIter->second);
-                std::cout<<"    #faces= "<<faces.size()<<std::endl;
+//                std::cout<<"    #faces= "<<faces.size()<<std::endl;
                 std::set<const PolyhedronInclusionNodeIO<dim>*> uniquePolyNodes;
                 for(const auto& pair : faces)
                 {
@@ -124,7 +124,7 @@ namespace model
                         uniquePolyNodes.emplace(&polyhedronInclusionNodes().at(nodeID));
                     }
                 }
-                std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
+//                std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
                 if(uniquePolyNodes.size()>=dim+1)
                 {
                     // Find grain

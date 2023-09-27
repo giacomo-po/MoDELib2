@@ -157,23 +157,26 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
 
 void DDFieldWidget::compute()
 {
-    if(groupBox->layout())
+    if(groupBox)
     {
-        for(int k=0;k<groupBox->layout()->count();++k)
+        if(groupBox->layout())
         {
-            QLayoutItem *item = groupBox->layout()->itemAt(k);
-            QWidget* widget = item->widget();
-            if(widget)
+            for(int k=0;k<groupBox->layout()->count();++k)
             {
-                auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
-                if (ddPlaneField)
+                QLayoutItem *item = groupBox->layout()->itemAt(k);
+                QWidget* widget = item->widget();
+                if(widget)
                 {
-                    ddPlaneField->compute(configFields);
+                    auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
+                    if (ddPlaneField)
+                    {
+                        ddPlaneField->compute(configFields);
+                    }
                 }
             }
         }
+        plotField();
     }
-    plotField();
 }
 
 void DDFieldWidget::plotField()

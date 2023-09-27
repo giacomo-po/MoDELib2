@@ -108,8 +108,8 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
 
             if(planeID>=0 && planeID<4)
             {
-//                const auto basePlane(inverted? std::shared_ptr<LatticePlaneBase>(new LatticePlaneBase(singleCrystal->planeNormals()[planeID]->primitiveVectors.second*(-1),singleCrystal->planeNormals()[planeID]->primitiveVectors.first*(-1))) : singleCrystal->planeNormals()[planeID]);
-                const auto basePlane(inverted? std::shared_ptr<LatticePlaneBase>(new LatticePlaneBase(singleCrystal->planeNormals()[planeID]->primitiveVectors.second,singleCrystal->planeNormals()[planeID]->primitiveVectors.first)) : singleCrystal->planeNormals()[planeID]);
+//                const auto basePlane(inverted? std::shared_ptr<GlidePlaneBase>(new GlidePlaneBase(singleCrystal->planeNormals()[planeID]->primitiveVectors.second*(-1),singleCrystal->planeNormals()[planeID]->primitiveVectors.first*(-1))) : singleCrystal->planeNormals()[planeID]);
+                const auto basePlane(inverted? std::shared_ptr<GlidePlaneBase>(new GlidePlaneBase(singleCrystal->planeNormals()[planeID]->primitiveVectors.second,singleCrystal->planeNormals()[planeID]->primitiveVectors.first,nullptr)) : singleCrystal->planeNormals()[planeID]);
                 const auto unitNormal(basePlane->cartesian().normalized());
                 const auto faceBaryShift((basePlane->primitiveVectors.first+basePlane->primitiveVectors.second).cartesian()*sftSize/3.0);
                 const VectorDimD corner(singleCrystal->snapToLattice(basePoint-faceBaryShift).cartesian());

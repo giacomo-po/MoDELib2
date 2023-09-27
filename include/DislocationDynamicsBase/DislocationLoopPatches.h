@@ -55,6 +55,8 @@ namespace model
         GlobalPatchPositionType& globalPatches();
         const VectorDim orientedArea() const;
         double solidAngle(const VectorDim& x) const;
+        int windingNumber(const VectorDim& pt) const;
+        int windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane) const;
         template <typename T> static int sgn(const T& val);
 
 	};	

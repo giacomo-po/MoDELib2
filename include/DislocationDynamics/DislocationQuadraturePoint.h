@@ -64,6 +64,7 @@ namespace model
         double elasticEnergyPerLength;
         double coreEnergyPerLength;
         int inclusionID;
+        std::pair<VectorDim,VectorDim> slipVectors;
         
         DislocationQuadraturePoint(const LinkType& parentSegment,
                                    const int& q,const int& qOrder,

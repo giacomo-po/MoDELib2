@@ -13,7 +13,7 @@
 #include <memory>
 #include <assert.h>
 #include <LatticeModule.h>
-//#include <LatticePlaneBase.h>
+#include <GlidePlaneBase.h>
 //#include <LatticeVector.h>
 //#include <RationalLatticeDirection.h>
 #include <DislocationMobilityBase.h>
@@ -30,31 +30,31 @@ namespace model
         typedef Eigen::Matrix<double,3,1> VectorDim;
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         
-        const LatticePlaneBase n;
+        const GlidePlaneBase& n;
         const RationalLatticeDirection<3>  s;
         const VectorDim unitNormal;
         const VectorDim unitSlip;
         const VectorDim unitSlipFull;
         const MatrixDim G2Lfull;
         const std::shared_ptr<DislocationMobilityBase> mobility;
-        const std::shared_ptr<GammaSurface> gammaSurface;
+//        const std::shared_ptr<GammaSurface> gammaSurface;
         const std::shared_ptr<GlidePlaneNoise> planeNoise;
                 
-        SlipSystem(const LatticePlaneBase& n_in,
-                   const LatticeVector<3>& slip_in,
-                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
-                   const std::shared_ptr<GlidePlaneNoise>& planeNoise_in);
+//        SlipSystem(const GlidePlaneBase& n_in,
+//                   const LatticeVector<3>& slip_in,
+//                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+////                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
+//                   const std::shared_ptr<GlidePlaneNoise>& planeNoise_in);
         
-        SlipSystem(const LatticePlaneBase& n_in,
+        SlipSystem(const GlidePlaneBase& n_in,
                    const RationalLatticeDirection<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
+//                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
                    const std::shared_ptr<GlidePlaneNoise>& planeNoise_in);
         
         bool isPartial() const;
         bool isSameAs(const RationalLatticeDirection<3>& s1,const ReciprocalLatticeDirection<3>& n1);
-        double misfitEnergy(const Eigen::Matrix<double,3,1>& b);
+//        double misfitEnergy(const Eigen::Matrix<double,3,1>& b);
         
         
         Eigen::Matrix<double,2,1> globalToLocal(const VectorDim& x) const;

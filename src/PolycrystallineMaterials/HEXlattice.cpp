@@ -63,7 +63,7 @@ namespace model
 
 
         
-        std::vector<std::shared_ptr<LatticePlaneBase>> HEXlattice<3>::getPlaneNormals() const
+        std::vector<std::shared_ptr<GlidePlaneBase>> HEXlattice<3>::getPlaneNormals() const
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the HEX lattice
           */
@@ -81,27 +81,27 @@ namespace model
             LatticeVectorType a3(a2-a1);
             LatticeVectorType  c((VectorDimI()<<0,0,1).finished(),*this);
 
-            std::vector<std::shared_ptr<LatticePlaneBase>> temp;
+            std::vector<std::shared_ptr<GlidePlaneBase>> temp;
             if(enableBasalSlipSystems)
             {
-                temp.emplace_back(new LatticePlaneBase(a1,a2));           // basal plane
+                temp.emplace_back(new GlidePlaneBase(a1,a2));           // basal plane
             }
 
             if(enablePrismaticSlipSystems)
             {
-                temp.emplace_back(new LatticePlaneBase(a1,c));           // prismatic plane
-                temp.emplace_back(new LatticePlaneBase(a2,c));           // prismatic plane
-                temp.emplace_back(new LatticePlaneBase(a3,c));           // prismatic plane
+                temp.emplace_back(new GlidePlaneBase(a1,c));           // prismatic plane
+                temp.emplace_back(new GlidePlaneBase(a2,c));           // prismatic plane
+                temp.emplace_back(new GlidePlaneBase(a3,c));           // prismatic plane
             }
             
             if(enablePyramidalSlipSystems)
             {
-                temp.emplace_back(new LatticePlaneBase(a1,a2+c));         // pyramidal plane
-                temp.emplace_back(new LatticePlaneBase(a2,a3+c));         // pyramidal plane
-                temp.emplace_back(new LatticePlaneBase(a3,c-a1));        // pyramidal plane
-                temp.emplace_back(new LatticePlaneBase(a1*(-1),c-a2));       // pyramidal plane
-                temp.emplace_back(new LatticePlaneBase(a2*(-1),c-a3));       // pyramidal plane
-                temp.emplace_back(new LatticePlaneBase(a3*(-1),a1+c));        // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a1,a2+c));         // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a2,a3+c));         // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a3,c-a1));        // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a1*(-1),c-a2));       // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a2*(-1),c-a3));       // pyramidal plane
+                temp.emplace_back(new GlidePlaneBase(a3*(-1),a1+c));        // pyramidal plane
             }
             
             return temp;

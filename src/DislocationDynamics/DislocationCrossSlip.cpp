@@ -325,7 +325,7 @@ namespace model
                         link->networkLink()->updateQuadraturePointsSeg();
                     }
                 }
-                loop->computeStackingFaultForces();
+//                loop->computeStackingFaultForces();
                 for(const auto& link : loop->loopLinks())
                 {
                     if(link->networkLink())

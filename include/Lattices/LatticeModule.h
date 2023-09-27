@@ -45,7 +45,7 @@ namespace model
 #include <LatticeDirection.h>
 #include <ReciprocalLatticeDirection.h>
 
-#include <LatticePlaneBase.h>
+//#include <LatticePlaneBase.h>
 #include <LatticePlane.h>
 #include <LatticeLine.h>
 #include <RationalLatticeDirection.h>
