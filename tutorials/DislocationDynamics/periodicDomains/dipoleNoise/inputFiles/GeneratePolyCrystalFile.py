@@ -2,7 +2,7 @@ import sys
 sys.path.append("../../../../../python/")
 from modlibUtils import *
 
-pf=PolyCrystalFile('../../../MaterialsLibrary/Cu.txt');
+pf=PolyCrystalFile('../../../MaterialsLibrary/AlMg15.txt');
 pf.absoluteTemperature=300;
 pf.enablePartials=1;
 pf.meshFile='../../../MeshLibrary/unitCube.msh'
@@ -12,6 +12,9 @@ pf.boxEdges=np.array([[0,1,1],[2,1,-1],[-1,1,-1]]) # i-throw is the direction of
 pf.boxScaling=np.array([200,200,200]) # must be a vector of integers
 pf.X0=np.array([0.5,0.5,0.5]) # Centering unitCube mesh. Mesh nodes X are mapped to x=F*(X-X0)
 pf.periodicFaceIDs=np.array([0,1,2,3,4,5])
+pf.solidSolutionNoiseMode=2
+pf.gridSize=np.array([256,256])
+pf.gridSpacing_SI=np.array([1e-10,1e-10])
 pf.write()
 
 # Edit periodicDipole file

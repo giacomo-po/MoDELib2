@@ -24,6 +24,9 @@ class PolyCrystalFile(dict):
     F=np.zeros((3,3))
     X0=np.array([0,0,0])
     periodicFaceIDs=np.array([0,1,2,3,4,5])
+    solidSolutionNoiseMode=0
+    gridSize=np.array([256,256])
+    gridSpacing_SI=np.array([1e-10,1e-10])
     
     def __init__(self, materialFile):
         self.materialFile = materialFile
@@ -90,9 +93,9 @@ class PolyCrystalFile(dict):
         polyFile.write('X0='+' '.join(map(str, self.X0))+'; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) \n')
         polyFile.write('periodicFaceIDs='+' '.join(map(str, self.periodicFaceIDs))+'; # IDs of faces labelled as periodic \n')
 
-        polyFile.write('gridSize=256 256; # size of grid on the glide plane\n');
-        polyFile.write('gridSpacing_SI=1e-10 1e-10; # [m] spacing of grid on the glide plane\n');
-        polyFile.write('solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise\n')
+        polyFile.write('gridSize='+' '.join(map(str, self.gridSize))+'; # size of grid on the glide plane\n');
+        polyFile.write('gridSpacing_SI='+' '.join(map(str, self.gridSpacing_SI))+'; # [m] spacing of grid on the glide plane\n');
+        polyFile.write('solidSolutionNoiseMode='+str(self.solidSolutionNoiseMode)+'; # 0=no noise, 1= read noise, 2=compute noise\n')
         polyFile.write('solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;\n');
         polyFile.write('solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;\n');
         polyFile.write('stackingFaultNoiseMode=0; # 0=no noise\n');

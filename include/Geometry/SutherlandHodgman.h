@@ -20,7 +20,7 @@ namespace model
     
     class SutherlandHodgman
     {
-        
+        //! Clips a subject polygon with a convex clipping polygon
         
         template<typename PointType>
         static bool inside(const PointType& p, const PointType& p1, const PointType& p2)

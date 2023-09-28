@@ -19,7 +19,7 @@
 
 #ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
 #include <fftw3.h>
-//#include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/bessel.hpp>
 #include <cmath>
 #endif
 
@@ -408,8 +408,8 @@ SolidSolutionNoiseGenerator::SolidSolutionNoiseGenerator(const std::string& nois
         REAL_SCALAR k = sqrt(kx*kx + ky*ky + kz*kz);
         if(k>0)
         {
-//            return a*k*sqrt(0.5*boost::math::cyl_bessel_k(2,a*k));
-            return a*k*sqrt(0.5*std::cyl_bessel_k(2,a*k));
+            return a*k*sqrt(0.5*boost::math::cyl_bessel_k(2,a*k));
+//            return a*k*sqrt(0.5*std::cyl_bessel_k(2,a*k));
         }
         else
         {

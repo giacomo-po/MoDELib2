@@ -18,7 +18,7 @@
 #ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
 //#include <complex.h>
 #include <fftw3.h>
-#include <boost/math/special_functions/bessel.hpp>
+//#include <boost/math/special_functions/bessel.hpp>
 #endif
 
 #include <DislocationFieldBase.h>

@@ -1,21 +1,47 @@
-# cmake .. -D CMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-12
+# cmake .. -DCMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-12 -DCMAKE_PREFIX_PATH="/opt/local/lib/cmake;/usr/local/lib/cmake"
+
 cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_AS_LIB "ON to build as a static library" OFF)
-option(USE_NOISE_GENERATOR "Using fftw3 to generate the GlidePlaneNoise" OFF)
-option(USE_PYBIND11 "Using pybind11" ON)
 
-
-find_package(eigen3 3.4 REQUIRED NO_MODULE)
-
-#set(EigenRootDir "/usr/local/include")
-
+set(EIGEN3_INCLUDE_DIRS /opt/local/include/eigen3)
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -Ofast")
-set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+
+### fftw3 ### find_package is currently broken. Workaround using find_library
+find_library(FFTW3_LIBRARIES fftw3)  
+if(FFTW3_LIBRARIES)
+	cmake_path(GET FFTW3_LIBRARIES PARENT_PATH FFTW3_LIBRARY_DIRS)
+	set(FFTW3_INCLUDE_DIRS ${FFTW3_LIBRARY_DIRS}/../include)
+	message(STATUS "FFTW3_LIBRARIES:" ${FFTW3_LIBRARIES})
+	message(STATUS "FFTW3_LIBRARY_DIRS:" ${FFTW3_LIBRARY_DIRS})
+	message(STATUS "FFTW3_INCLUDE_DIRS:" ${FFTW3_INCLUDE_DIRS})
+	include_directories(${FFTW3_INCLUDE_DIRS})
+	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
+else()
+  message(WARNING "library ${FFTW3_LIBRARIES} not found, noise generator is disabled")
+endif()
+
+### pybind11 ###
+find_package(Python COMPONENTS Interpreter Development)
+if(Python_FOUND)
+	message(STATUS "Python_VERSION:" ${Python_VERSION})
+	find_package(pybind11 CONFIG REQUIRED)
+if(pybind11_FOUND)
+	message(STATUS "pybind11_VERSION:" ${pybind11_VERSION})
+	set(pybind11_LIBRARIES pybind11::embed)
+	message(STATUS "pybind11_LIBRARIES: ${pybind11_LIBRARIES}")
+	add_definitions(-D _MODEL_PYBIND11_)
+else()
+	message(WARNING "pybind11 not found, pybind11 is disabled")
+endif()
+else()
+	message(WARNING "Python not found, pybind11 is disabled")
+endif()
 
 if(BUILD_AS_LIB)
 	add_library(DDomp STATIC)
@@ -23,23 +49,7 @@ else()
 	add_executable(DDomp DDomp.cpp)
 endif()
 
-if(USE_NOISE_GENERATOR)
-	find_library(FFTW3_LIBRARIES fftw3)
-	message(STATUS "FFTW3_INCLUDE_DIRS: ${FFTW3_INCLUDE_DIRS}")
-	message(STATUS "FFTW3_LIBRARY_DIRS: ${FFTW3_LIBRARY_DIRS}")
-	set(CMAKE_PREFIX_PATH ${FFTW3_LIBRARY_DIRS})
-	include_directories(${FFTW3_INCLUDE_DIRS})
-#	include_directories(${BOOSTDir})
-	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
-endif()
-
-if(USE_PYBIND11)
-	find_package(Python COMPONENTS Interpreter Development)
-	find_package(pybind11 CONFIG REQUIRED)
-	add_definitions(-D _MODEL_PYBIND11_)
-endif()
-
-include_directories ( ${EIGEN3_INCLUDE_DIRS} )
+include_directories(${EIGEN3_INCLUDE_DIRS})
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
@@ -59,7 +69,6 @@ include_directories(${MoDELibRootDir}/include/DislocationMobilities/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
 
-
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
@@ -70,11 +79,5 @@ add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsBase DDDbase)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 
-if(USE_NOISE_GENERATOR)
-	target_link_libraries(${PROJECT_NAME} ${FFTW3_LIBRARIES})
-endif()
-
-if(USE_PYBIND11)
-target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)
-endif()
+target_link_libraries(${PROJECT_NAME} ${FFTW3_LIBRARIES} ${pybind11_LIBRARIES})
 
