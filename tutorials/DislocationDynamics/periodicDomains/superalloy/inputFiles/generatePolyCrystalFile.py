@@ -18,7 +18,6 @@ print('volume fraction='+str(np.power(cubeSide/cubeSpacing,3)))
 
 pf=PolyCrystalFile(materialFile);
 pf.absoluteTemperature=300;
-pf.enablePartials=0;
 pf.meshFile='../../../MeshLibrary/unitCube.msh'
 #pf.grain1globalX1=np.array([0,1,-1])     # global x1 axis. Overwritten if alignToSlipSystem0=true
 #pf.grain1globalX3=np.array([1,1,1])    # global x3 axis. Overwritten if alignToSlipSystem0=true

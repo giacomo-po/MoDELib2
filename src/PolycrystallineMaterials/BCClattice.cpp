@@ -120,10 +120,14 @@ namespace model
                     const auto& a3(planeBase->primitiveVectors.second);
                     
                     std::vector<RationalLatticeDirection<3>> slipDirs;
-                    slipDirs.emplace_back(Rational( 1,1),a1);
-                    slipDirs.emplace_back(Rational(-1,1),a1);
-                    slipDirs.emplace_back(Rational( 1,1),a3);
-                    slipDirs.emplace_back(Rational(-1,1),a3);
+                    
+                    if(material.enabledSlipSystems.find("full")!=material.enabledSlipSystems.end())
+                    {
+                        slipDirs.emplace_back(Rational( 1,1),a1);
+                        slipDirs.emplace_back(Rational(-1,1),a1);
+                        slipDirs.emplace_back(Rational( 1,1),a3);
+                        slipDirs.emplace_back(Rational(-1,1),a3);
+                    }
                     
 //                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr,planeNoise));
 //                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr,planeNoise));

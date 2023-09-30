@@ -1,6 +1,7 @@
 
 materialName=AlMg15;
 crystalStructure=FCC;
+enabledSlipSystems=full; # types of slip systems enabled e.g. enabledSlipSystems=full Shockley Kear;
 b_SI=0.286e-9;          # [m]           Burgers vector magnitude (pure Al) 
 mu0_SI=24.971966e9;     # [Pa]          temperature-independent shear modulus coeff in mu=mu0+mu1*T, (interpolated from Pierre data)
 mu1_SI=0.0;             # [Pa/K]        temperature-dependent shear modulus coeff in mu=mu0+mu1*T

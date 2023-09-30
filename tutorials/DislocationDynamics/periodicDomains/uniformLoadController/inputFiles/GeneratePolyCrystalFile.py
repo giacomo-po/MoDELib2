@@ -4,7 +4,6 @@ from modlibUtils import *
 
 pf=PolyCrystalFile('../../../MaterialsLibrary/Ni.txt');
 pf.absoluteTemperature=300;
-pf.enablePartials=0;
 pf.dislocationMobilityType='default'
 pf.meshFile='../../../MeshLibrary/unitCube.msh'
 pf.grain1globalX1=np.array([1,2,1])     # global x1 axis. Overwritten if alignToSlipSystem0=true

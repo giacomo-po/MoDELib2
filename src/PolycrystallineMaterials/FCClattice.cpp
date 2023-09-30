@@ -119,9 +119,11 @@ namespace model
 //        const std::shared_ptr<DislocationMobilityBase> fccMobility(new DislocationMobilityFCC(material));
         
         std::vector<std::shared_ptr<SlipSystem>> temp;
-        
-        const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
-        
+
+//        const bool enableFullDislocations(TextFileParser(polyFile).readScalar<int>("enableFullDislocations",true));
+//        const bool enableShockleyPartials(TextFileParser(polyFile).readScalar<int>("enableShockleyPartials",true));
+//        const bool enableKearPartials(TextFileParser(polyFile).readScalar<int>("enableKearPartials",true));
+
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         
         
@@ -148,8 +150,20 @@ namespace model
                 const auto b3(a3*(-1));
 
                 std::vector<RationalLatticeDirection<3>> slipDirs;
-                if(enablePartials)
+                
+                if(material.enabledSlipSystems.find("full")!=material.enabledSlipSystems.end())
                 {
+                    // Full slip systems
+                    slipDirs.emplace_back(Rational( 1,1),b1);
+                    slipDirs.emplace_back(Rational(-1,1),b1);
+                    slipDirs.emplace_back(Rational( 1,1),b2);
+                    slipDirs.emplace_back(Rational(-1,1),b2);
+                    slipDirs.emplace_back(Rational( 1,1),b3);
+                    slipDirs.emplace_back(Rational(-1,1),b3);
+                }
+                if(material.enabledSlipSystems.find("Shockley")!=material.enabledSlipSystems.end())
+                {
+                    // Shockley partials
                     slipDirs.emplace_back(Rational(1,3),b1-b3);
                     slipDirs.emplace_back(Rational(1,3),b1-b2);
                     slipDirs.emplace_back(Rational(1,3),b2-b1);
@@ -157,14 +171,15 @@ namespace model
                     slipDirs.emplace_back(Rational(1,3),b3-b2);
                     slipDirs.emplace_back(Rational(1,3),b3-b1);
                 }
-                else
+                if(material.enabledSlipSystems.find("Kear")!=material.enabledSlipSystems.end())
                 {
-                    slipDirs.emplace_back(Rational( 1,1),b1);
-                    slipDirs.emplace_back(Rational(-1,1),b1);
-                    slipDirs.emplace_back(Rational( 1,1),b2);
-                    slipDirs.emplace_back(Rational(-1,1),b2);
-                    slipDirs.emplace_back(Rational( 1,1),b3);
-                    slipDirs.emplace_back(Rational(-1,1),b3);
+                    // Kear partials
+                    slipDirs.emplace_back(Rational(2,3),b1-b3);
+                    slipDirs.emplace_back(Rational(2,3),b1-b2);
+                    slipDirs.emplace_back(Rational(2,3),b2-b1);
+                    slipDirs.emplace_back(Rational(2,3),b2-b3);
+                    slipDirs.emplace_back(Rational(2,3),b3-b2);
+                    slipDirs.emplace_back(Rational(2,3),b3-b1);
                 }
                 
                 for(const auto& slipDir : slipDirs)

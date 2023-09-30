@@ -1,4 +1,4 @@
-import sys, string, os, fileinput
+import sys, string, os, fileinput, shutil
 from fractions import Fraction
 import numpy as np
 # evl file
@@ -10,7 +10,6 @@ class PolyCrystalFile(dict):
     materialFile=''
     crystalStructure=''
     absoluteTemperature=300.0
-    enablePartials=0
     dislocationMobilityType='default'
     meshFile='../../../MeshLibrary/unitCube.msh'
     grain1globalX1=np.array([1,0,0]) # overwritten if alignToSlipSystem0=true
@@ -81,7 +80,6 @@ class PolyCrystalFile(dict):
         polyFile = open("polycrystal.txt", "w")
         polyFile.write('materialFile='+self.materialFile+';\n')
         polyFile.write('absoluteTemperature='+str(self.absoluteTemperature)+'; # [K] simulation temperature \n')
-        polyFile.write('enablePartials='+str(self.enablePartials)+'; # enables partial slip systems \n')
         polyFile.write('dislocationMobilityType='+self.dislocationMobilityType+'; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal \n')
         polyFile.write('meshFile='+self.meshFile+'; # mesh file \n')
         polyFile.write('C2G1='+' '.join(map(str, self.C2G[0,:]))+'\n')
@@ -157,9 +155,6 @@ def setInputVariable(fileName,variable,newVal):
                 foundPound=line.find('#');
                 foundEqual=line.find('=');
                 foundSemiCol=line.find(';');
-#                print(foundPound, file=sys.stderr)
-#                print(foundEqual, file=sys.stderr)
-#                print(foundSemiCol, file=sys.stderr)
                 if (foundPound==-1 or foundPound > foundSemiCol) and (foundSemiCol>foundEqual):
                     oldVal=line[foundEqual+1:foundSemiCol]
                     line = line.replace(oldVal,newVal)

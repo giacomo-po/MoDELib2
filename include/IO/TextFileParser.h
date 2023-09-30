@@ -296,6 +296,19 @@ public:
         return readKey(key);
     }
     
+    std::set<std::string> readStringSet(const std::string& key,const bool&verbose=false)
+    {
+        const std::string valStr(readString(key,verbose));
+        std::stringstream ss(valStr);
+        std::string tempVal;
+        std::set<std::string> tempS;
+        while (ss >> tempVal)
+        {
+            tempS.insert(tempVal);
+        }
+        return tempS;
+    }
+    
     /**********************************************************************/
     template<typename Scalar>
     Scalar readScalar(const std::string& key,const bool&verbose=false)

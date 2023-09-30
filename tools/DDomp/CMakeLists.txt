@@ -1,4 +1,4 @@
-# cmake .. -DCMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-12 -DCMAKE_PREFIX_PATH="/opt/local/lib/cmake;/usr/local/lib/cmake"
+# cmake .. -DCMAKE_CXX_COMPILER=/opt/local/bin/g++-mp-11 -DCMAKE_PREFIX_PATH="/opt/local/lib/cmake;/usr/local/lib/cmake"
 
 cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)

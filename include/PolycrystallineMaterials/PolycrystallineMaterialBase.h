@@ -49,6 +49,7 @@ namespace model
         const double C3;        // 1.0-2.0*nu;
         const double C4;        // 0.5*C2;
 
+        const std::set<std::string> enabledSlipSystems;
         
         const double dOmegav;
         const double Ufv_SI;

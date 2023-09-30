@@ -3,7 +3,7 @@ style=individual;
 tag=pdl0;
 periodicDipoleSlipSystemIDs=0 1; # slip system IDs for each dipole
 periodicDipoleExitFaceIDs=0 0; # 1 is for edge, 0 for screw
-periodicDipoleNodes=0 0;
+periodicDipoleNodes=10 10; # number of extra nodes on each dipole
 periodicDipolePoints=0.0 0.0 0.0
 0.0 0.0 0.0;
 periodicDipoleHeights=200 200; # height of each dipole, in number of planes

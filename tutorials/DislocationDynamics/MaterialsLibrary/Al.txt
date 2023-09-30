@@ -1,6 +1,7 @@
 materialName=Al;
 crystalStructure=FCC;
 b_SI=0.286e-9; 		# [m] 		Burgers vector magnitude 
+enabledSlipSystems=full; # types of slip systems enabled e.g. enabledSlipSystems=full Shockley Kear;
 mu0_SI=27e9;		# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
 mu1_SI=0.0;			# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
 nu=0.347;			# [-]		Poisson's ratio
