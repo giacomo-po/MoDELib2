@@ -48,7 +48,7 @@
 #include <Polycrystal.h>
 #include <GlidePlaneFactory.h>
 #include <GlidePlaneNoise.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 #include <TriangularMesh.h>
 #include <CompareVectorsByComponent.h>
 
@@ -81,7 +81,7 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         vtkRenderer* const renderer;
 //        const Polycrystal<3>& poly;
-        DDconfigFields<3>& configFields;
+        ConfigurationFields<3>& configFields;
 
         QGridLayout* mainLayout;
         QGroupBox* glidePlanesGroup;
@@ -131,7 +131,7 @@ namespace model
 ////        void updateConfiguration(const DDauxIO<3>& auxIO);
 //        void updateConfiguration(const DDconfigIO<3>& configIO);
 
-        GlidePlaneActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,DDconfigFields<3>& configFields_in);
+        GlidePlaneActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,ConfigurationFields<3>& configFields_in);
 //        void updateConfiguration(const DDauxIO<3>& auxIO);
         void updateConfiguration();
         

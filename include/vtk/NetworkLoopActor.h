@@ -45,7 +45,7 @@
 #include <MeshPlane.h>
 #include <PeriodicGlidePlaneFactory.h>
 //#include <DislocationLoopPatches.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 
 namespace model
 {
@@ -82,10 +82,10 @@ namespace model
         
         public:
                 
-        const DDconfigFields<3>& configFields;
+        const ConfigurationFields<3>& configFields;
         
         NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,
-                         const DDconfigFields<3>& configFields_in);
+                         const ConfigurationFields<3>& configFields_in);
         void updateConfiguration();
         
     };

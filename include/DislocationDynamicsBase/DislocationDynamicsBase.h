@@ -42,6 +42,7 @@ namespace model
         const Polycrystal<dim> poly;
         GlidePlaneFactory<3> glidePlaneFactory;
         PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
+        const std::vector<VectorDim> periodicBasis;
         const std::vector<VectorDim> periodicShifts;
 
     }; // class DislocationDynamicsBase

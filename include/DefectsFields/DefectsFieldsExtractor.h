@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_ConfigurationFields_H_
-#define model_ConfigurationFields_H_
+#ifndef model_DefectsFieldsExtractor_H_
+#define model_DefectsFieldsExtractor_H_
 
 #include <string>
 
@@ -16,32 +16,34 @@
 
 #include <DislocationDynamicsBase.h>
 #include <MicrostructureGenerator.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 
 namespace model
 {
 
     
 
-    struct ConfigurationFields
+    struct DefectsFieldsExtractor
     {
         
         typedef Eigen::Matrix<double,3,1> VectorDim;
         typedef Eigen::Matrix<double,3,3> MatrixDim;
 
     
-        ConfigurationFields(const std::string& folderName);
+        DefectsFieldsExtractor(const std::string& folderName);
         
         DislocationDynamicsBase<3> ddBase;
 //        DDconfigIO<3> configIO;
         MicrostructureGenerator microstructureGenerator;
-        DDconfigFields<3> configFields;
+        ConfigurationFields<3> configFields;
         
         const DDconfigIO<3>& config() const;
         DDconfigIO<3>& config();
         void readMicrostructure();
         void readConfiguration(const size_t& runID);
         void writeConfiguration(const size_t& runID);
+        VectorDim lowerDomainCorner() const;
+        VectorDim upperDomainCorner() const;
         double solidAngle(const VectorDim& x) const;
         double solidAngle(const double& x,const double& y,const double& z) const;
         VectorDim dislocationPlasticDisplacement(const VectorDim& x) const;

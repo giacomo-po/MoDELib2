@@ -73,7 +73,7 @@ void SingleGlidePlaneActor::appendClosedPolygon(const std::vector<Eigen::Matrix<
     
 }
 
-GlidePlaneActor::GlidePlaneActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,DDconfigFields<3>& configFields_in) :
+GlidePlaneActor::GlidePlaneActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,ConfigurationFields<3>& configFields_in) :
 /* init */ renderWindow(renWin)
 /* init */,renderer(ren)
 /* init */,configFields(configFields_in)

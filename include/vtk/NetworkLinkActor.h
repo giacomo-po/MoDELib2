@@ -39,7 +39,7 @@
 //#include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 
 namespace model
 {
@@ -85,9 +85,9 @@ namespace model
         
         public:
         
-        const DDconfigFields<3>& configFields;
+        const ConfigurationFields<3>& configFields;
                 
-        NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const DDconfigFields<3>& configFields_in);
+        NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const ConfigurationFields<3>& configFields_in);
         void updateConfiguration(vtkPolyData* const nodePolyData);
 
         Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;

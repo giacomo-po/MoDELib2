@@ -23,7 +23,7 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 
 #include <DislocationDynamicsBase.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 #include <DDauxIO.h>
 #include <DDFieldWidget.h>
 #include <SimplicialMesh.h>
@@ -51,7 +51,7 @@ namespace model
         QVTKOpenGLStereoWidget* const qvtkGLwidget;
 //        const DDtraitsIO& traitsIO;
         DislocationDynamicsBase<3>& ddBase;
-        DDconfigFields<3> configFields;
+        ConfigurationFields<3> configFields;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
         NetworkLoopActor* loops;

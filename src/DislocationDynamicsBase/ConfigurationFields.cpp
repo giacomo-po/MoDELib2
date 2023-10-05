@@ -7,11 +7,11 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DDconfigFields_cpp_
-#define model_DDconfigFields_cpp_
+#ifndef model_ConfigurationFields_cpp_
+#define model_ConfigurationFields_cpp_
 
 #include <numbers>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 #include <StressStraight.h>
 
 
@@ -19,9 +19,9 @@ namespace model
 {
 
     template <int dim>
-    DDconfigFields<dim>::DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in):
+    ConfigurationFields<dim>::ConfigurationFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in):
     /* init */ ddBase(ddBase_in)
-//    /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
+    //    /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
     /* init */,configIO(configIO_in)
     {
         
@@ -29,9 +29,8 @@ namespace model
 
 
     template <int dim>
-    void DDconfigFields<dim>::updateConfiguration()
+    void ConfigurationFields<dim>::updateConfiguration()
     {
-        
         // clean up
         loopPatches().clear();
         segments()=configIO.segments();
@@ -115,7 +114,7 @@ namespace model
             if(faceIter!=faceMap.end())
             {
                 const auto& faces(faceIter->second);
-//                std::cout<<"    #faces= "<<faces.size()<<std::endl;
+                //                std::cout<<"    #faces= "<<faces.size()<<std::endl;
                 std::set<const PolyhedronInclusionNodeIO<dim>*> uniquePolyNodes;
                 for(const auto& pair : faces)
                 {
@@ -124,7 +123,7 @@ namespace model
                         uniquePolyNodes.emplace(&polyhedronInclusionNodes().at(nodeID));
                     }
                 }
-//                std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
+                //                std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
                 if(uniquePolyNodes.size()>=dim+1)
                 {
                     // Find grain
@@ -179,55 +178,55 @@ namespace model
     }
 
     template <int dim>
-    const std::map<size_t,DislocationLoopPatches<dim>>& DDconfigFields<dim>::loopPatches() const
+    const std::map<size_t,DislocationLoopPatches<dim>>& ConfigurationFields<dim>::loopPatches() const
     {
         return *this;
     }
 
     template <int dim>
-    std::map<size_t,DislocationLoopPatches<dim>>& DDconfigFields<dim>::loopPatches()
+    std::map<size_t,DislocationLoopPatches<dim>>& ConfigurationFields<dim>::loopPatches()
     {
         return *this;
     }
 
     template <int dim>
-    const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>& DDconfigFields<dim>::segments() const
+    const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>& ConfigurationFields<dim>::segments() const
     {
         return *this;
     }
 
     template <int dim>
-    std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>& DDconfigFields<dim>::segments()
+    std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>& ConfigurationFields<dim>::segments()
     {
         return *this;
     }
 
     template <int dim>
-    const typename DDconfigFields<dim>::PolyhedronInclusionNodeContainerType& DDconfigFields<dim>::polyhedronInclusionNodes() const
+    const typename ConfigurationFields<dim>::PolyhedronInclusionNodeContainerType& ConfigurationFields<dim>::polyhedronInclusionNodes() const
     {
         return *this;
     }
 
     template <int dim>
-    typename DDconfigFields<dim>::PolyhedronInclusionNodeContainerType& DDconfigFields<dim>::polyhedronInclusionNodes()
+    typename ConfigurationFields<dim>::PolyhedronInclusionNodeContainerType& ConfigurationFields<dim>::polyhedronInclusionNodes()
     {
         return *this;
     }
 
     template <int dim>
-    const typename DDconfigFields<dim>::EshelbyInclusionContainerType& DDconfigFields<dim>::eshelbyInclusions() const
+    const typename ConfigurationFields<dim>::EshelbyInclusionContainerType& ConfigurationFields<dim>::eshelbyInclusions() const
     {
         return *this;
     }
 
     template <int dim>
-    typename DDconfigFields<dim>::EshelbyInclusionContainerType& DDconfigFields<dim>::eshelbyInclusions()
+    typename ConfigurationFields<dim>::EshelbyInclusionContainerType& ConfigurationFields<dim>::eshelbyInclusions()
     {
         return *this;
     }
 
     template <int dim>
-    double DDconfigFields<dim>::solidAngle(const VectorDim& x) const
+    double ConfigurationFields<dim>::solidAngle(const VectorDim& x) const
     {
         double temp(0.0);
         for(const auto& patch : loopPatches())
@@ -240,65 +239,65 @@ namespace model
         return temp;
     }
 
-template <int dim>
-typename DDconfigFields<dim>::VectorDim DDconfigFields<dim>::dislocationPlasticDisplacement(const VectorDim& x) const
-{
-    VectorDim temp(VectorDim::Zero());
-    for(const auto& patch : loopPatches())
+    template <int dim>
+    typename ConfigurationFields<dim>::VectorDim ConfigurationFields<dim>::dislocationPlasticDisplacement(const VectorDim& x) const
     {
-        const auto& loop(configIO.loop(patch.first));
-        for(const auto& shift : ddBase.periodicShifts)
+        VectorDim temp(VectorDim::Zero());
+        for(const auto& patch : loopPatches())
         {
-            temp-=patch.second.solidAngle(x+shift)/4.0/std::numbers::pi*loop.B;
-        }
-    }
-    return temp;
-}
-
-template <int dim>
-typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::dislocationStress(const VectorDim& x) const
-{
-    MatrixDim temp(MatrixDim::Zero());
-    for (const auto& segment : segments())
-    {
-        if(segment.second.meshLocation==0 || segment.second.meshLocation==2)
-        {// segment inside mesh or on grain boundary
-            auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
-            auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
-            if(itSource!=configIO.nodeMap().end() && itSink!=configIO.nodeMap().end())
+            const auto& loop(configIO.loop(patch.first));
+            for(const auto& shift : ddBase.periodicShifts)
             {
-                const auto& sourceNode(configIO.nodes()[itSource->second]);
-                const auto&   sinkNode(configIO.nodes()[itSink->second]);
-                StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b);
-                for(const auto& shift : ddBase.periodicShifts)
+                temp-=patch.second.solidAngle(x+shift)/4.0/std::numbers::pi*loop.B;
+            }
+        }
+        return temp;
+    }
+
+    template <int dim>
+    typename  ConfigurationFields<dim>::MatrixDim ConfigurationFields<dim>::dislocationStress(const VectorDim& x) const
+    {
+        MatrixDim temp(MatrixDim::Zero());
+        for (const auto& segment : segments())
+        {
+            if(segment.second.meshLocation==0 || segment.second.meshLocation==2)
+            {// segment inside mesh or on grain boundary
+                auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
+                auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
+                if(itSource!=configIO.nodeMap().end() && itSink!=configIO.nodeMap().end())
                 {
-                    temp+=ss.stress(x+shift);
+                    const auto& sourceNode(configIO.nodes()[itSource->second]);
+                    const auto&   sinkNode(configIO.nodes()[itSink->second]);
+                    StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b);
+                    for(const auto& shift : ddBase.periodicShifts)
+                    {
+                        temp+=ss.stress(x+shift);
+                    }
+                }
+                else
+                {
+                    
                 }
             }
-            else
-            {
+        }
+        return temp;
+    }
 
+    template <int dim>
+    typename  ConfigurationFields<dim>::MatrixDim ConfigurationFields<dim>::inclusionStress(const VectorDim& x) const
+    {
+        MatrixDim temp(MatrixDim::Zero());
+        for(const auto& inclusion : eshelbyInclusions() )
+        {
+            for(const auto& shift : ddBase.periodicShifts)
+            {
+                temp+=inclusion.second->stress(x+shift);
             }
         }
+        return temp;
     }
-    return temp;
-}
 
-template <int dim>
-typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::inclusionStress(const VectorDim& x) const
-{
-    MatrixDim temp(MatrixDim::Zero());
-    for(const auto& inclusion : eshelbyInclusions() )
-    {
-        for(const auto& shift : ddBase.periodicShifts)
-        {
-            temp+=inclusion.second->stress(x+shift);
-        }
-    }
-    return temp;
-}
-
-    template class DDconfigFields<3>;
+    template class ConfigurationFields<3>;
 
 }
 #endif

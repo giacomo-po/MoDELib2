@@ -392,9 +392,24 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocitiesK
                                                                                       const double& L0,
                                                                                       const VectorDim& c)
 {
-    for(const auto& shift : parentSegment.network().periodicShifts)
+    VectorDim nearestShift(VectorDim::Zero());
+    if(parentSegment.network().simulationParameters.periodicImageCentered)
+    {// Determine which pair of images is the closest
+        std::map<std::pair<float,float>,VectorDim> shiftMap; // order by distance, and for same distance pick smallest shift vector
+        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,parentSegment.source->get_P(),parentSegment.sink->get_P());
+        shiftMap.emplace(std::pair<float,float>(ssd.dMin,0.0),VectorDim::Zero()); // force shift 0 to be default
+        for(const auto& shift : parentSegment.network().periodicShifts)
+        {
+            SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
+            shiftMap.emplace(std::pair<float,float>(ssd.dMin,shift.squaredNorm()),shift);
+        }
+        nearestShift=shiftMap.begin()->second;
+    }
+    
+    for(const auto& baseShift : parentSegment.network().periodicShifts)
     {
         
+        const VectorDim shift(baseShift+nearestShift);
         
         SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
                                         parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
@@ -427,18 +442,29 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocitiesK
                 qPoint.stress += stressC;
             }
         }
-    }
-    
-    if(parentSegment.network().computeElasticEnergyPerLength)
-    {
-        for(const auto& shift : parentSegment.network().periodicShifts)
+        
+        if(parentSegment.network().computeElasticEnergyPerLength)
         {
-            for (auto& qPoint : quadraturePoints())
-            {
-                qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
-            }
+//            for(const auto& shift : parentSegment.network().periodicShifts)
+//            {
+                for (auto& qPoint : quadraturePoints())
+                {
+                    qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
+                }
+//            }
         }
     }
+    
+//    if(parentSegment.network().computeElasticEnergyPerLength)
+//    {
+//        for(const auto& shift : parentSegment.network().periodicShifts)
+//        {
+//            for (auto& qPoint : quadraturePoints())
+//            {
+//                qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
+//            }
+//        }
+//    }
 }
 
 template<int dim,int corder>
@@ -492,55 +518,7 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
                     {
                         
                         const StraightDislocationSegment<dim>& ss(link.second.lock()->straight);
-                        
-                        
                         updateForcesAndVelocitiesKernel(parentSegment,ss,L0,c);
-
-//                        for(const auto& shift : parentSegment.network().periodicShifts)
-//                        {
-//                            SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
-//                                                            parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
-//
-//                            //                        const double dr(ssd.dMin/(L0+ss.length));
-//                            const double dr(ssd.dMin/(L0));
-//
-//                            if(dr<10.0)
-//                            {// full interaction
-//                                for (auto& qPoint : quadraturePoints())
-//                                {
-//                                    qPoint.stress += ss.stress(qPoint.r+shift);
-//                                }
-//                            }
-//                            else if(dr<100.0)
-//                            {// 2pt interpolation
-//                                const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()+shift));
-//                                const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()+shift));
-//                                for (auto& qPoint : quadraturePoints())
-//                                {
-//                                    const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-//                                    qPoint.stress += (1.0-u)*stressSource+u*stressSink;
-//                                }
-//                            }
-//                            else
-//                            {// 1pt interpolation
-//                                const MatrixDim stressC(ss.stress(c+shift));
-//                                for (auto& qPoint : quadraturePoints())
-//                                {
-//                                    qPoint.stress += stressC;
-//                                }
-//                            }
-//                        }
-//
-//                        if(parentSegment.network().computeElasticEnergyPerLength)
-//                        {
-//                            for(const auto& shift : parentSegment.network().periodicShifts)
-//                            {
-//                                for (auto& qPoint : quadraturePoints())
-//                                {
-//                                    qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
-//                                }
-//                            }
-//                        }
                     }
                 }
             }
@@ -548,10 +526,6 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
         
         
         // Stacking fault contribution in the matrix
-        //                computeMatrixStackingFaultStress(parentSegment);
-        //                computeMatrixStackingFaultForces(parentSegment);
-        
-        
         if(parentSegment.slipSystem() && parentSegment.glidePlanes().size()==1)
         {
             const auto& glidePlane(**parentSegment.glidePlanes().begin());

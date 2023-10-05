@@ -49,7 +49,7 @@ namespace model
 
 /**********************************************************************/
 NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,
-                                   const DDconfigFields<3>& configFields_in) :
+                                   const ConfigurationFields<3>& configFields_in) :
 /* init */ renderWindow(renWin)
 /* init */,mainLayout(new QGridLayout(this))
 /* init */,showLoops(new QCheckBox(this))

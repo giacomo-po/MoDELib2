@@ -75,7 +75,7 @@ double FieldDataPnt::value(const int& valID,const bool& useDD,const bool& useIN)
 
 DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                              vtkRenderer* const renderer_in,
-                             const  DDconfigFields<3>& configFields_in):
+                             const  ConfigurationFields<3>& configFields_in):
 /* init */ mainLayout(new QGridLayout(this))
 /* init */,boxLabel(new QLabel(tr("# of planes")))
 /* init */,spinBox(new QSpinBox(this))
@@ -256,7 +256,7 @@ void DDFieldWidget::plotField()
     }
 }
 
-void DDPlaneField::compute(const DDconfigFields<3>& configFields)
+void DDPlaneField::compute(const ConfigurationFields<3>& configFields)
 {
     std::cout<<"DDPlaneField computing "<<dataPnts().size()<<" points..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();

@@ -9,6 +9,7 @@
 #ifndef model_TriangularMesh_cpp_
 #define model_TriangularMesh_cpp_
 
+#include <vector>
 #include <deque>
 #include <Eigen/Dense>
 #include <TriangularMesh.h>
@@ -192,8 +193,8 @@ void TriangularMesh::reMesh(const std::deque<Eigen::Matrix<double,2,1>>& boundar
         //        triangulate("pzAevn", &in, &mid, &vorout); // G.P. use D for Delaunay triangulation, q to enforce angle quality
         //            std::cout<<"Meshing plane..."<<std::flush;
         //            const auto t0= std::chrono::system_clock::now();
-//        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
-        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
+        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
+//        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
 
         //            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         
@@ -366,7 +367,9 @@ void TriangularMesh::reMesh(const std::vector<Eigen::Matrix<double,2,1>>& points
         //        triangulate("pzAevn", &in, &mid, &vorout); // G.P. use D for Delaunay triangulation, q to enforce angle quality
         //            std::cout<<"Meshing plane..."<<std::flush;
         //            const auto t0= std::chrono::system_clock::now();
-        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
+//        triangulate("pazq", &in, &mid, (struct triangulateio *) NULL);
+        triangulate("pz", &in, &mid, (struct triangulateio *) NULL);
+
         //            std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         
         

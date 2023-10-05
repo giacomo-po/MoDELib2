@@ -43,7 +43,7 @@
 //#include <NetworkLinkActor.h>
 //#include <InclusionActor.h>
 //#include <NetworkLoopActor.h>
-#include <DDconfigFields.h>
+#include <ConfigurationFields.h>
 
 namespace model
 {
@@ -100,7 +100,7 @@ namespace model
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute(const DDconfigFields<3>& configFields);
+        void compute(const ConfigurationFields<3>& configFields);
         void plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut);
 
     };
@@ -130,7 +130,7 @@ namespace model
         
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
-        const DDconfigFields<3>& configFields;
+        const ConfigurationFields<3>& configFields;
         
     private slots:
         void clearLayout(QLayout *layout);
@@ -144,7 +144,7 @@ namespace model
         
         DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                       vtkRenderer* const renderer_in,
-                      const  DDconfigFields<3>& configFields_in);
+                      const  ConfigurationFields<3>& configFields_in);
         
     };
 

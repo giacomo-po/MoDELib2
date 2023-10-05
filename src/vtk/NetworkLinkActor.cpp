@@ -48,7 +48,7 @@ namespace model
     
         
         /**********************************************************************/
-        NetworkLinkActor::NetworkLinkActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,const DDconfigFields<3>& configFields_in) :
+        NetworkLinkActor::NetworkLinkActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,const ConfigurationFields<3>& configFields_in) :
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLinks(new QCheckBox(this))

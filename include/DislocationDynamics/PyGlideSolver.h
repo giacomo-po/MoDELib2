@@ -52,7 +52,7 @@ namespace model
         const std::string pyModuleName;
         
 #ifdef _MODEL_PYBIND11_
-        pybind11::module_ pyModule;
+        pybind11::module pyModule;
 #endif
 
         

@@ -44,7 +44,6 @@ namespace model
     /* init */,kB(kB_SI/material.mu_SI/std::pow(material.b_SI,3))
     /* init */,pyModuleName(pyModuleName_in)
     {
-        throw std::runtime_error("DislocationMobilityPy created without pybind11");
     }
 
     double DislocationMobilityPy::velocity(const MatrixDim& ,
@@ -56,6 +55,7 @@ namespace model
                     const double& ,
                     const std::shared_ptr<StochasticForceGenerator>& )
     {
+        throw std::runtime_error("DislocationMobilityPy used without pybind11");
         return 0.0;
     }
 #endif

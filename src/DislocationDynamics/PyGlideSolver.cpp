@@ -35,11 +35,11 @@ namespace model
         std::string pyModuleFile(pyModulePath.filename());
         std::cout<<greenBoldColor<<"Creating PyGlideSolver: dir= "<<pyModuleDir<<", file="<<pyModuleFile<<defaultColor<<std::endl;
         pybind11::scoped_interpreter guard{};
-        pybind11::module_ sys = pybind11::module_::import("sys");
+        pybind11::module sys = pybind11::module::import("sys");
         pybind11::list path = sys.attr("path");
         path.append(pyModuleDir.c_str());
 
-        pyModule=pybind11::module_::import(pyModuleFile.c_str());
+        pyModule=pybind11::module::import(pyModuleFile.c_str());
     }
 
     template <typename DislocationNetworkType>

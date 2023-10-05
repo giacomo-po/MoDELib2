@@ -5,7 +5,13 @@ import numpy as np
 
 class EVL:
     nodes=np.empty([0,0])
-        
+
+class AUX:
+    meshNodes=np.empty([0,0])
+    gaussPoints=np.empty([0,0])
+    periodicPatches=np.empty([0,0])
+
+
 class PolyCrystalFile(dict):
     materialFile=''
     crystalStructure=''
@@ -115,6 +121,19 @@ def readEVLtxt(filename):
         evl.nodes[k,:]=data[1:4]
     return evl
 
+def readAUXtxt(filename):
+    auxFile = open(filename+'.txt', "r")
+    numNodes=int(auxFile.readline().rstrip())
+    numGPs=int(auxFile.readline().rstrip())
+    numPGPP=int(auxFile.readline().rstrip())
+    aux=AUX();
+    aux.gaussPoints=np.empty([numGPs, 33])
+    for k in np.arange(numNodes):
+        np.meshNodes=np.fromstring(auxFile.readline().rstrip(), sep=' ')
+    for k in np.arange(numGPs):
+        aux.gaussPoints[k,:]=np.fromstring(auxFile.readline().rstrip(), sep=' ')
+    return aux
+
 def getStringInFile(fileName,variable):
     with open(fileName) as f:
         datafile = f.readlines()
@@ -144,7 +163,10 @@ def getFarray(F,Flabels,label):
     k=0;
     for line in Flabels:
         if line==label:
-            return F[:,k]
+            if F.ndim==1:
+                return F[k]
+            else:
+                return F[:,k]
         k=k+1
     return np.zeros(shape=(0,0))
 

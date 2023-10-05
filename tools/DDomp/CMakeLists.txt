@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -Ofast")
 
+
 ### fftw3 ### find_package is currently broken. Workaround using find_library
 find_library(FFTW3_LIBRARIES fftw3)  
 if(FFTW3_LIBRARIES)

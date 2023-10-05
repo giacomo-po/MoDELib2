@@ -106,7 +106,7 @@ namespace model
         std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
     }
 
-    InclusionActor::InclusionActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,const DDconfigFields<3>& configFields_in) :
+    InclusionActor::InclusionActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,const ConfigurationFields<3>& configFields_in) :
     /* init */ renderWindow(renWin)
     /* init */,mainLayout(new QGridLayout(this))
     /* init */,showInclusions(new QCheckBox(this))

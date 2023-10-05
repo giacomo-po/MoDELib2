@@ -6,9 +6,9 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#include <ConfigurationFields.h>
+//#include <ConfigurationFields.h>
 
-using namespace model;
+//using namespace model;
 
 int main(int argc, char** argv)
 {

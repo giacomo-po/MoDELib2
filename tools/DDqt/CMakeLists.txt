@@ -32,23 +32,6 @@ else()
   	message(WARNING "library ${FFTW3_LIBRARIES} not found, noise generator is disabled")
 endif()
 
-### pybind11 ###
-find_package(Python COMPONENTS Interpreter Development)
-if(Python_FOUND)
-	message(STATUS "Python_VERSION:" ${Python_VERSION})
-	find_package(pybind11 CONFIG REQUIRED)
-if(pybind11_FOUND)
-	message(STATUS "pybind11_VERSION:" ${pybind11_VERSION})
-	set(pybind11_LIBRARIES pybind11::embed)
-	message(STATUS "pybind11_LIBRARIES: ${pybind11_LIBRARIES}")
-	add_definitions(-D _MODEL_PYBIND11_)
-else()
-	message(WARNING "pybind11 not found, pybind11 is disabled")
-endif()
-else()
-	message(WARNING "Python not found, pybind11 is disabled")
-endif()
-
 ### Qt ###
 find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)
 message (STATUS "Qt6_VERSION: ${Qt6_VERSION}")
