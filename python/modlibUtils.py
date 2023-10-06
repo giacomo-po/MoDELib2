@@ -23,7 +23,9 @@ class PolyCrystalFile(dict):
     A=np.zeros((3,3))
     invA=np.zeros((3,3))
     alignToSlipSystem0=0
-    boxEdges=np.array([[1,0,0],[0,1,0],[0,0,1]]) # i-throw is the direction of i-th box edge. Overwritten if alignToSlipSystem0=true
+    boxEdges=np.array([[1,0,0],[0,1,0],[0,0,1]]) # i-th row is the direction of i-th box edge. Overwritten if alignToSlipSystem0=true
+    boxEdgesLatticeDirections=np.zeros((3,3)) # i-th col is the lattice direction of i-th box edge. Overwritten if alignToSlipSystem0=true
+    boxEdgesLatticeLengths=np.array([1.,1.,1.]) # i-th element is the length of the lattice direction of i-th box edge. Overwritten if alignToSlipSystem0=true
     boxScaling=np.array([1000,1000,1000]) # must be a vector of integers
     C2G=np.zeros((3,3))
     F=np.zeros((3,3))
@@ -45,7 +47,7 @@ class PolyCrystalFile(dict):
         self.invA=np.linalg.inv(self.A)
         np.set_printoptions(precision=15)
         
-    def write(self):
+    def compute(self):
         if self.alignToSlipSystem0:
             if self.crystalStructure == 'BCC':
                 self.grain1globalX1=np.array([1,1,-1]) # overwrite
@@ -64,7 +66,7 @@ class PolyCrystalFile(dict):
             self.boxEdges=self.C2G
         
         # Find lattice vectors (columns of L) aligned to boxEdges
-        L=np.zeros((3,3))
+#        L=np.zeros((3,3))
         B=self.invA@self.boxEdges.transpose()
         for j in range(0, 3):
             b=B[:,j]/np.max(np.abs(B[:,j]))
@@ -78,11 +80,12 @@ class PolyCrystalFile(dict):
             nr=np.array([1,1,1], dtype=int)
             for i in range(0, 3):
                 nr[i]=n[i]*dp/d[i]
-            nr=nr/np.gcd.reduce(nr)
-            L[:,j]=self.A@nr.transpose()
-            self.F[:,j]=self.C2G@L[:,j]*self.boxScaling[j]
-        #print(self.F)
-
+            self.boxEdgesLatticeDirections[:,j]=self.A@nr.transpose()
+            self.boxEdgesLatticeLengths[j]=np.linalg.norm(self.boxEdgesLatticeDirections[:,j])
+            self.F[:,j]=self.C2G@self.boxEdgesLatticeDirections[:,j]*self.boxScaling[j]
+        
+    def write(self):
+        self.compute()
         polyFile = open("polycrystal.txt", "w")
         polyFile.write('materialFile='+self.materialFile+';\n')
         polyFile.write('absoluteTemperature='+str(self.absoluteTemperature)+'; # [K] simulation temperature \n')

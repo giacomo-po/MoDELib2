@@ -1,14 +1,13 @@
 materialFile=../../../MaterialsLibrary/Ni.txt;
 absoluteTemperature=300; # [K] simulation temperature 
-enablePartials=0; # enables partial slip systems 
 dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal 
 meshFile=../../../MeshLibrary/unitCube.msh; # mesh file 
-C2G1=0.4082482904638631 0.8164965809277261 0.4082482904638631
-     0.8616404368553292 -0.492365963917331 0.12309149097933275
-     0.30151134457776363 0.30151134457776363 -0.9045340337332909; # crystal rotation matrix 
-F=1039.2304845413264 866.0254037844387 7.212660930724421e-15
-  -4.239139478030724e-14 574.4562646538028 -3.179062802502695e-14
-  -2.6470551241635553e-14 -2.6470551241635553e-14 938.0831519646857; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
+C2G1=1.0 0.0 0.0
+     0.0 1.0 0.0
+     0.0 0.0 1.0; # crystal rotation matrix 
+F=1414.2135623730949 0.0 0.0
+  0.0 1414.2135623730949 0.0
+  0.0 0.0 1414.2135623730949; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
 X0=0.5 0.5 0.5; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) 
 periodicFaceIDs=0 1 2 3 4 5; # IDs of faces labelled as periodic 
 gridSize=256 256; # size of grid on the glide plane
