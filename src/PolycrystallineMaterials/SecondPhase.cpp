@@ -27,7 +27,7 @@ namespace model
     /* init */,gsMap(_gsMap)
     {
         
-        std::cout<<greenBoldColor<<"Creating SecondPhase "<<name<<defaultColor<<std::endl;
+        std::cout<<greenBoldColor<<"Creating SecondPhase "<<name<<", phaseIDs= "<<this->sID<<defaultColor<<std::endl;
         
     }
 

@@ -3,8 +3,6 @@ project(DDqt VERSION 1.0.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_PREFIX_PATH "/Users/Giacomo/Applications/Qt/6.5.2/macos/lib/cmake")
 
-find_package(eigen3 3.4 REQUIRED NO_MODULE)
-
 set(EIGEN3_INCLUDE_DIRS /opt/local/include/eigen3)
 set(BOOST_INCLUDE_DIRS /opt/local/include)
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../../")

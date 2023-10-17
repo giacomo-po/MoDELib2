@@ -26,4 +26,4 @@ Umv_eV=0.61; 		# [eV]		Vacancy migration energy
 D0v_SI=1.18e-5;	    # [m^2/s]	vacancy diffusion coefficient
 
 # Second Phases
-secondPhases=;
+enabledSecondPhases=;

@@ -76,7 +76,7 @@ namespace model
                 const auto& grain(ddBase.poly.grain(searchPair.second->region->regionID));
                 if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                 {
-                    const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
+                    const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
                     EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
                     
                     
@@ -147,7 +147,7 @@ namespace model
                         const auto& grain(ddBase.poly.grain(*grainIDs.begin()));
                         if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                         {
-                            const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
+                            const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
                             EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
                             std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
                             eshelbyInclusions().emplace(inclusion.inclusionID,iptr);

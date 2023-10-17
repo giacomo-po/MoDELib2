@@ -218,16 +218,61 @@ namespace model
                     if (LA > FLT_EPSILON && LB > FLT_EPSILON)
                     {
 
-                        StressStraight<dim> stressA(DN.poly,ssd.x0 - infiniteLineLength / LA * chordA,
-                                                    ssd.x0 + infiniteLineLength / LA * chordA,
-                                                    linkA->burgers());
-
-                        StressStraight<dim> stressB(DN.poly,ssd.x1 - infiniteLineLength / LB * chordB,
-                                                    ssd.x1 + infiniteLineLength / LB * chordB,
-                                                    linkB->burgers());
+//                        if(linkA->slipSystem()==linkB->slipSystem() && linkA->slipSystem()->isPartial())
+//                        {
+//                            isValidJunction = true;
+//                        }
+//                        else
+//                        {
+//                            if (ssd.dMin > FLT_EPSILON)
+//                            {
+//                                StressStraight<dim> stressA(DN.poly,ssd.x0 - infiniteLineLength / LA * chordA,
+//                                                            ssd.x0 + infiniteLineLength / LA * chordA,
+//                                                            linkA->burgers());
+//
+//                                StressStraight<dim> stressB(DN.poly,ssd.x1 - infiniteLineLength / LB * chordB,
+//                                                            ssd.x1 + infiniteLineLength / LB * chordB,
+//                                                            linkB->burgers());
+//
+//                                VerboseJunctions(3, "Non-intersecting pair" << std::endl;);
+//                                const VectorDim forceOnA = (stressB.stress(ssd.x0) * linkA->burgers()).cross(chordA);
+//                                const VectorDim forceOnB = (stressA.stress(ssd.x1) * linkB->burgers()).cross(chordB);
+//                                const VectorDim dxShift(ssd.x1 - ssd.x0);
+//                                if (forceOnA.dot(dxShift) > FLT_EPSILON && forceOnB.dot(dxShift) < -FLT_EPSILON)
+//                                {
+//                                    VerboseJunctions(3, "attractive pair 1" << std::endl;);
+//                                    isValidJunction = true; // for non-parallel lines this neglects the energy of rotation
+//                                }
+//                                else
+//                                {
+//                                    VerboseJunctions(3, "non-attractive pair" << std::endl;);
+//                                }
+//                            }
+//                            else
+//                            {
+//                                VerboseJunctions(3, "Intersecting pair .. Determining via frank rule" << std::endl;);
+//                                // const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
+//                                isValidJunction=(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
+//                                // //Coding the frank rule for this criteria
+//                                // const double b1((linkA->burgers()).squaredNorm());
+//                                // const double b2((linkB->burgers()).squaredNorm());
+//                                // const double bJunction((linkA->burgers()+linkB->burgers()).squaredNorm());
+//
+//                                // isValidJunction= ((bJunction)<=(b1+b2+FLT_EPSILON));
+//                                // VerboseJunctions(3, " From Frank's Rule "<<isValidJunction << std::endl;);
+//                            }
+//                        }
 
                         if (ssd.dMin > FLT_EPSILON)
                         {
+                            StressStraight<dim> stressA(DN.poly,ssd.x0 - infiniteLineLength / LA * chordA,
+                                                        ssd.x0 + infiniteLineLength / LA * chordA,
+                                                        linkA->burgers());
+
+                            StressStraight<dim> stressB(DN.poly,ssd.x1 - infiniteLineLength / LB * chordB,
+                                                        ssd.x1 + infiniteLineLength / LB * chordB,
+                                                        linkB->burgers());
+
                             VerboseJunctions(3, "Non-intersecting pair" << std::endl;);
                             const VectorDim forceOnA = (stressB.stress(ssd.x0) * linkA->burgers()).cross(chordA);
                             const VectorDim forceOnB = (stressA.stress(ssd.x1) * linkB->burgers()).cross(chordB);

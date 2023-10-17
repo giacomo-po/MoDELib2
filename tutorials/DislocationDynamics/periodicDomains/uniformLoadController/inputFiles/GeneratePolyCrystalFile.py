@@ -2,7 +2,7 @@ import sys
 sys.path.append("../../../../../python/")
 from modlibUtils import *
 
-pf=PolyCrystalFile('../../../MaterialsLibrary/Ni.txt');
+pf=PolyCrystalFile('../../../MaterialsLibrary/W.txt');
 pf.absoluteTemperature=300;
 pf.dislocationMobilityType='default'
 pf.meshFile='../../../MeshLibrary/unitCube.msh'

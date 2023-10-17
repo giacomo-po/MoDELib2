@@ -68,8 +68,8 @@ namespace model
           * the slip plane normals of the BCC lattice
           */
             
-            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            typedef LatticeVector<dim> LatticeVectorType;
+//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+//            typedef LatticeVector<dim> LatticeVectorType;
 
             LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),*this);
             LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
@@ -108,7 +108,7 @@ namespace model
             std::shared_ptr<GlidePlaneNoise> planeNoise((solidSolutionNoiseMode||stackingFaultNoiseMode)? new GlidePlaneNoise(polyFile,material) : nullptr);
 
             
-            typedef Eigen::Matrix<double,dim,1> VectorDimD;
+//            typedef Eigen::Matrix<double,dim,1> VectorDimD;
             const double d110(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
 
             std::vector<std::shared_ptr<SlipSystem>> temp;
@@ -147,16 +147,66 @@ namespace model
         
         
 
-    std::vector<std::shared_ptr<SecondPhase<3>>> BCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
-                                                                                const PlaneNormalContainerType&)
+    typename BCClattice<3>::SecondPhaseContainerType BCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
+                                                                                const PlaneNormalContainerType& planeNormals)
     {
         
-        const std::vector<std::string> spNames(TextFileParser(material.materialFile).readArray<std::string>("secondPhases",true));
-        std::vector<std::shared_ptr<SecondPhase<3>>> temp;
+//        std::vector<std::shared_ptr<SecondPhase<3>>> temp;
+        SecondPhaseContainerType temp;
 
-        for(const std::string& sp : spNames)
+        for(const std::string& sp : material.enabledSecondPhases)
         {
-                throw std::runtime_error("Unnown SecondPhase "+sp+" in BCC crystal.");
+            if(sp=="chi")
+            {
+                Eigen::Matrix<double,Eigen::Dynamic,2> waveVectors110(TextFileParser(material.materialFile).readMatrixCols<double>("chiWaveVectors110",2,true));
+                Eigen::Matrix<double,Eigen::Dynamic,3> f110(TextFileParser(material.materialFile).readMatrixCols<double>("chiGammaSurfacePoints110",3,true));
+                const int rotSymm110(1);
+                std::vector<Eigen::Matrix<double,2,1>> mirSymm110;
+                mirSymm110.push_back((Eigen::Matrix<double,2,1>()<<1.0,0.0).finished()); // symm with respect to local y-axis
+                mirSymm110.push_back((Eigen::Matrix<double,2,1>()<<0.0,1.0).finished()); // symm with respect to local x-axis
+                const Eigen::Matrix<double,2,2> A110((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+                                                                                 0.0,0.5*std::sqrt(3.0)).finished());
+                std::shared_ptr<GammaSurface> gammaSurface110(new GammaSurface(A110,waveVectors110,f110,rotSymm110,mirSymm110));
+                const double d110(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
+                std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
+                for(const auto& pn : planeNormals)
+                {
+                    if(std::abs(pn->planeSpacing()-d110)<FLT_EPSILON)
+                    {// a 111 plane
+                        gsMap.emplace(pn.get(),gammaSurface110);
+                    }
+                }
+                std::shared_ptr<SecondPhase<dim>> sp(new SecondPhase<dim>("chi",gsMap));
+                temp.emplace(sp->sID,sp);
+            }
+            else if(sp=="sigma")
+            {
+                Eigen::Matrix<double,Eigen::Dynamic,2> waveVectors110(TextFileParser(material.materialFile).readMatrixCols<double>("sigmaWaveVectors110",2,true));
+                Eigen::Matrix<double,Eigen::Dynamic,3> f110(TextFileParser(material.materialFile).readMatrixCols<double>("sigmaGammaSurfacePoints110",3,true));
+                const int rotSymm110(1);
+                std::vector<Eigen::Matrix<double,2,1>> mirSymm110;
+                mirSymm110.push_back((Eigen::Matrix<double,2,1>()<<1.0,0.0).finished()); // symm with respect to local y-axis
+                mirSymm110.push_back((Eigen::Matrix<double,2,1>()<<0.0,1.0).finished()); // symm with respect to local x-axis
+                const Eigen::Matrix<double,2,2> A110((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+                                                                                 0.0,0.5*std::sqrt(3.0)).finished());
+                std::shared_ptr<GammaSurface> gammaSurface110(new GammaSurface(A110,waveVectors110,f110,rotSymm110,mirSymm110));
+                const double d110(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
+                std::map<const GlidePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
+                for(const auto& pn : planeNormals)
+                {
+                    if(std::abs(pn->planeSpacing()-d110)<FLT_EPSILON)
+                    {// a 111 plane
+                        gsMap.emplace(pn.get(),gammaSurface110);
+                    }
+                }
+                std::shared_ptr<SecondPhase<dim>> sp(new SecondPhase<dim>("sigma",gsMap));
+                temp.emplace(sp->sID,sp);
+            }
+
+            else
+            {
+                throw std::runtime_error("Unnown SecondPhase "+sp+" in BCC crystals.");
+            }
         }
         return temp;
     }

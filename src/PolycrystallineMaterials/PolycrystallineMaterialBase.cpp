@@ -48,6 +48,7 @@ namespace model
         /* init */,C3(1.0-2.0*nu)
         /* init */,C4(0.5*C2)
         /* init */,enabledSlipSystems(TextFileParser(materialFile).readStringSet("enabledSlipSystems",true))
+        /* init */,enabledSecondPhases(TextFileParser(materialFile).readStringSet("enabledSecondPhases",true))
         /* init */,dOmegav(TextFileParser(materialFile).readScalar<double>("dOmegav",true))
         /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))

@@ -7,9 +7,9 @@ mshFile=../../../MeshLibrary/cube2D.msh;
 
 # Transform y=A(x-x0)
 x0=-2.5 -1.0 -1.0;
-A=1000 0 0
-  0 1000 0
-  0 0 1000];
+A=100 0 0
+  0 100 0
+  0 0 100];
 inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
 inclusionVelocityReductionFactors=1;
 phaseIDs=0; # ID of secondPhase 

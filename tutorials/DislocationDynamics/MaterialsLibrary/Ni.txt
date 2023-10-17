@@ -26,7 +26,7 @@ Umv_eV=0; 	# [eV]	Vacancy migration energy
 D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
 
 # Second Phases
-secondPhases=L12;
+enabledSecondPhases=L12;
 APB_SI=162e-3; # [J/m^2] APB energy density
 SISF_SI=74e-3; # [J/m^2] SISF energy density
 CESF_SI=1350e-3; # [J/m^2] CESF energy density

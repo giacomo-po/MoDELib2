@@ -50,7 +50,8 @@ namespace model
         const double C4;        // 0.5*C2;
 
         const std::set<std::string> enabledSlipSystems;
-        
+        const std::set<std::string> enabledSecondPhases;
+
         const double dOmegav;
         const double Ufv_SI;
         const double Ufv;

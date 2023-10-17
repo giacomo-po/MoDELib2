@@ -19,12 +19,13 @@
 //#include <LatticeVector.h>
 //#include <RationalLatticeDirection.h>
 #include <SlipSystem.h>
+#include <StaticID.h>
 
 namespace model
 {
     
     template<int dim>
-    struct SecondPhase
+    struct SecondPhase : public StaticID<SecondPhase<dim>>
     {
         typedef const Eigen::Matrix<double,dim,1> VectorDim;
         const std::string name;
