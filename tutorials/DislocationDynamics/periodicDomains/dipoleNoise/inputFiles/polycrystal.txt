@@ -5,14 +5,14 @@ meshFile=../../../MeshLibrary/unitCube.msh; # mesh file
 C2G1=0.0 0.7071067811865475 0.7071067811865475
      0.816496580927726 0.408248290463863 -0.408248290463863
      -0.5773502691896258 0.5773502691896258 -0.5773502691896258; # crystal rotation matrix 
-F=199.99999999999994 -4.474228634151476e-15 -8.948457268302953e-15
-  1.6510856177052346e-15 346.41016151377545 -3.302171235410469e-15
-  -3.559238568635683e-15 3.559238568635683e-15 489.89794855663564; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
+F=199.99999999999994 -4.474228634151476e-15 1.7563549180097404e-14
+  1.6510856177052346e-15 346.41016151377545 -9.872435567624393e-14
+  -3.559238568635683e-15 3.559238568635683e-15 1469.693845669907; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
 X0=0.5 0.5 0.5; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) 
 periodicFaceIDs=0 1 2 3 4 5; # IDs of faces labelled as periodic 
 gridSize=256 256; # size of grid on the glide plane
 gridSpacing_SI=1e-10 1e-10; # [m] spacing of grid on the glide plane
-solidSolutionNoiseMode=2; # 0=no noise, 1= read noise, 2=compute noise
+solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise
 solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
 solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;
 stackingFaultNoiseMode=0; # 0=no noise

@@ -65,7 +65,7 @@ namespace model
     template <typename DislocationNetworkType>
     DislocationCrossSlip<DislocationNetworkType>::DislocationCrossSlip(DislocationNetworkType& DN_in) :
     /* init */ DN(DN_in)
-    /* init */,verboseCrossSlip(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseCrossSlip",true))
+    /* init */,verboseCrossSlip(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseCrossSlip",true))
     {
     }
 
@@ -205,9 +205,9 @@ namespace model
 
                         // Define the cross-slip plane through last NetworkNode in branch
                         GlidePlaneKey<dim> crossSlipPlaneKey(branch.first.back()->networkNode->get_P(), crosSlipSystem->n);
-                        const auto crossSlipPlane(DN.glidePlaneFactory.getFromKey(crossSlipPlaneKey));
+                        const auto crossSlipPlane(DN.ddBase.glidePlaneFactory.getFromKey(crossSlipPlaneKey));
                         auto crossSlipLoop(DN.loops().create(crosSlipSystem->s.cartesian(), crossSlipPlane));
-                        const auto periodicCrossSlipPlane(DN.periodicGlidePlaneFactory->get(crossSlipPlane->key));
+                        const auto periodicCrossSlipPlane(DN.ddBase.periodicGlidePlaneFactory.get(crossSlipPlane->key));
 //                        std::cout<<"Constructed crossSlipPlane="<<std::endl;
                         
                         std::vector<std::shared_ptr<LoopNodeType>> crossSlipLoopNodes;

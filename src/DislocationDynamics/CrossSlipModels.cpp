@@ -147,7 +147,7 @@ namespace model
         const double ss(css.unitNormal.transpose()*link.quadraturePoint(k).stress*css.s.cartesian().normalized());
         const double ec(css.unitNormal.transpose()*link.quadraturePoint(k).stress*css.unitNormal.cross(css.s.cartesian().normalized()));
         const double dG(dE-std::fabs(ss)*Vsc+eg*Veg-ec*Vec);
-        return w*std::exp(-dG/link.network().poly.kB/link.network().poly.T)*link.quadraturePoint(k).j/L;
+        return w*std::exp(-dG/link.network().ddBase.poly.kB/link.network().ddBase.poly.T)*link.quadraturePoint(k).j/L;
     }
 
     template <typename DislocationNetworkType>
@@ -181,7 +181,7 @@ namespace model
                             NetworkLinkType::QuadratureDynamicType::integrate(link.quadraturePoints().size(),this,csRate,&EscaigCrossSlipModelHEX<DislocationNetworkType>::crossSlipRateKernel,link,*slipSystem,
                                                                               csw,csLp,csp2bE,csp2bVeg,csp2bVsc,csp2bVec);
                         }
-                        const double csProb(1.0-std::exp(-csRate*link.network().simulationParameters.dt));
+                        const double csProb(1.0-std::exp(-csRate*link.network().ddBase.simulationParameters.dt));
                         ssMap.emplace(csProb,s);
                     }
                 }

@@ -26,6 +26,21 @@
 namespace model
 {
     
+struct Psi_I1
+{
+
+    double I1_a_a_a;
+    double I1_b_b_b;
+    double I1_le_le_le;
+    double I1_a_a_b;
+    double I1_a_a_le;
+    double I1_a_b_b;
+    double I1_b_b_le;
+    double I1_a_le_le;
+    double I1_b_le_le;
+    double I1_a_b_le;
+};
+
     template <int dim>
     class PolyhedronInclusion : public EshelbyInclusionBase<dim>
     /*                      */, private std::map<size_t,Plane<dim>>
@@ -47,8 +62,8 @@ namespace model
         static double Phi_u_II_b(double a, double b, double le);
         static double Phi_u_II_le(double a, double b, double le);
         
-        static double PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir);
-        double PHI_ij(int i, int j,const VectorDim& x) const;
+//        static double PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir);
+//        double PHI_ij(int i, int j,const VectorDim& x) const;
         
         static double Psi_I1_a_a_a(double a, double b, double le);
         static double Psi_I1_a_a_b(double a, double b, double le);
@@ -61,10 +76,10 @@ namespace model
         static double Psi_I1_b_le_le(double a, double b, double le);
         static double Psi_I1_le_le_le(double a, double b, double le);
         
-        static double PSI_ijkl(int i, int j, int k, int l, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir);
-        double PSI_ijkl(int i, int j, int k, int l, const VectorDim& x) const;
+//        static double PSI_ijkl(int i, int j, int k, int l, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir);
+//        double PSI_ijkl(int i, int j, int k, int l, const VectorDim& x) const;
         
-
+        const MatrixDim delta;
 
     public:
         
@@ -94,7 +109,7 @@ namespace model
         MatrixDim stress(const VectorDim& x) const override;
         MatrixDim elasticStrain(const VectorDim& x) const ;
         MatrixDim strain(const VectorDim& x) const ;
-        double eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const;
+        double eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const MatrixDim& PHI,const MatrixDim& delta, const Psi_I1& psi,const VectorDim& Svnorm,const VectorDim& Vnorm,const VectorDim& Vdir) const;
         MatrixVoigtSize eshelbyTensorVoigt(const VectorDim& x) const ;
         const std::map<size_t,Plane<dim>>& planes() const;
         

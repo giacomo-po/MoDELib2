@@ -56,7 +56,7 @@ namespace model
 
 
     std::vector<std::shared_ptr<GlidePlaneBase>> FCClattice<3>::getPlaneNormals(const PolycrystallineMaterialBase& material,
-                                                                                const std::string& polyFile) const
+                                                                                const std::string& ) const
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip plane normals of the FCC lattice
       */
@@ -208,7 +208,8 @@ namespace model
                 const double CISF(TextFileParser(material.materialFile).readScalar<double>("CISF_SI",true)/(material.mu_SI*material.b_SI));
                 const double SESF(TextFileParser(material.materialFile).readScalar<double>("SESF_SI",true)/(material.mu_SI*material.b_SI));
                 
-                const Eigen::Matrix<double,4,2> waveVectors111(0.5*(Eigen::Matrix<double,4,2>()<<0.0, 0.0,
+//                const Eigen::Matrix<double,4,2> waveVectors111(0.5*(Eigen::Matrix<double,4,2>()<<0.0, 0.0,
+                const Eigen::Matrix<double,4,2> waveVectors111((Eigen::Matrix<double,4,2>()<<0.0, 0.0,
                                                                     /*                        */ 0.0, 1.0,
 //                                                                    /*                        */ 1.0,-1.0,
                                                                     /*                        */ 1.0,1.0,
@@ -222,7 +223,8 @@ namespace model
                 const int rotSymm111(3);
                 const std::vector<Eigen::Matrix<double,2,1>> mirSymm111;
                 
-                const Eigen::Matrix<double,2,2> A111((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+//                const Eigen::Matrix<double,2,2> A111((Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
+                const Eigen::Matrix<double,2,2> A111(2.0*(Eigen::Matrix<double,2,2>()<< 1.0,-0.5,
                                                                                  0.0,0.5*std::sqrt(3.0)).finished());
                 std::shared_ptr<GammaSurface> gammaSurface111(new GammaSurface(A111,waveVectors111,f111,rotSymm111,mirSymm111));
                 const double d111(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,1.0).finished()).planeSpacing());

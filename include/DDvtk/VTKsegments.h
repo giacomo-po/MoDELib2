@@ -60,6 +60,7 @@ namespace model
 //        VectorDimI getPbcFlags(const std::string& filename) const;
         
         MatrixDim cellMatrix;
+        double EwaldLength;
         VectorDimI pbcFlags;
         std::vector<VectorDim> periodicShifts;
         

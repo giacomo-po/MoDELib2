@@ -40,7 +40,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const std::shared_ptr<StochasticForceGenerator>& sfg)
+                        const std::shared_ptr<StochasticForceGenerator>& )
     {
         return pyModule.attr("velocityPy")(S,b,xi,n,T,dL,dt).cast<double>();
     }

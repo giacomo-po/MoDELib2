@@ -2,6 +2,15 @@ import sys
 sys.path.append("../../../../../python/")
 from modlibUtils import *
 
+
+# Make a local copy of simulation parameters file and modify that copy if necessary
+DDfile='DD.txt'
+shutil.copy2('../../'+DDfile, '.')
+#setInputVariable(DDfile,'Lmin','10')  # min segment length (in Burgers vector units)
+#setInputVariable(DDfile,'Lmax','50')  # max segment length (in Burgers vector units)
+#setInputVariable(DDfile,'alphaLineTension','1.0') # dimensionless scale factor in for line tension forces
+
+
 # set up overall simulation size
 m=2 # there are (2m)^3 precipitates in the box
 materialFile='../../../MaterialsLibrary/Ni.txt'
@@ -44,8 +53,8 @@ L1=200
 L2=(cubeSpacing-cubeSide)*np.sqrt(2.0)
 n1=np.array([1,1,1])@pf.C2G.transpose() # primary plane normal
 n1=n1/np.linalg.norm(n1)
-b1=np.array([1,0,-1])@pf.C2G.transpose() # primary plane normal
-#b1=np.array([0,1,-1])@pf.C2G.transpose() # primary plane normal
+#b1=np.array([1,0,-1])@pf.C2G.transpose() # primary plane Burgers
+b1=np.array([0,1,-1])@pf.C2G.transpose() # primary plane Burgers
 b1=b1/np.linalg.norm(b1)
 d1=np.array([0,1,-1])@pf.C2G.transpose() # direction along channel in primary plane
 d2=np.cross(n1,d1) # direction across channel in primary plane
@@ -53,8 +62,8 @@ d1=d1/np.linalg.norm(d1)*L1
 d2=d2/np.linalg.norm(d2)*L2
 loopNodes=np.array([-d1/2-d2/2,d1/2-d2/2,d1/2+d2/2,-d1/2+d2/2])
 setInputMatrix(planarLoopFile1,'loopNodes',loopNodes)
-setInputMatrix(planarLoopFile1,'loopNormal',np.array([n1]))
-setInputMatrix(planarLoopFile1,'loopBurgers',np.array([b1]))
+setInputVector(planarLoopFile1,'loopNormal',n1,'loop normal')
+setInputVector(planarLoopFile1,'loopBurgers',b1,'loop Burgers')
 
 # Edit stress
 uniformExternalLoadControllerFile='uniformExternalLoadController.txt'

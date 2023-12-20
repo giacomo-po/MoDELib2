@@ -17,10 +17,10 @@ namespace model
     template <typename DislocationNetworkType>
     DislocationNetworkRemesh<DislocationNetworkType>::DislocationNetworkRemesh(DislocationNetworkType& DN_in):
     /* init */ DN(DN_in)
-    /* init */,Lmax(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("Lmax",true))
-    /* init */,Lmin(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("Lmin",true))
-    /* init */,relativeAreaThreshold(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("relativeAreaThreshold",true))
-    /* init */,remeshFrequency(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("remeshFrequency",true))
+    /* init */,Lmax(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("Lmax",true))
+    /* init */,Lmin(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("Lmin",true))
+    /* init */,relativeAreaThreshold(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("relativeAreaThreshold",true))
+    /* init */,remeshFrequency(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("remeshFrequency",true))
     {
         
         assert(Lmin<=Lmax);
@@ -405,7 +405,7 @@ namespace model
 
                     if(sourcePlanes.size()==dim-1 && sourcePlanes==sinkPlanes)
                     {
-                        if((link->chordLengthSquared()+link->chord().dot(link->sink->get_V() - link->source->get_V())* DN.simulationParameters.dt)<FLT_EPSILON)
+                        if((link->chordLengthSquared()+link->chord().dot(link->sink->get_V() - link->source->get_V())* DN.ddBase.simulationParameters.dt)<FLT_EPSILON)
                         {
                             toBeContracted.insert(std::make_pair(link->chordLength(), std::make_pair(link->source->sID, link->sink->sID)));
                         }
@@ -527,7 +527,7 @@ namespace model
         size_t nRemoved(0);
 
         //Snippet to remove zero area loops across boundary
-        if (DN.simulationParameters.isPeriodicSimulation())
+        if (DN.ddBase.simulationParameters.isPeriodicSimulation())
         {
             std::vector<size_t> loopToBeRemoved;
             for (const auto &weakLoop : DN.loops())

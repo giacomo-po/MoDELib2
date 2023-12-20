@@ -23,7 +23,7 @@ DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
                                              const std::shared_ptr<GlidePlaneType>& glidePlane_in) :
 /* init */ Loop<DislocationLoop>(net,glidePlane_in->grain.singleCrystal->rationalLatticeDirection(B))
 /* init */,glidePlane(glidePlane_in)
-/* init */,periodicGlidePlane(this->network().periodicGlidePlaneFactory? this->network().periodicGlidePlaneFactory->getFromKey(glidePlane->key) : nullptr)
+/* init */,periodicGlidePlane(this->network().ddBase.periodicGlidePlaneFactory.getFromKey(glidePlane->key))
 /* init */,_patches(periodicGlidePlane)
 /* init */,grain(glidePlane->grain)
 /* init */,loopType(this->flow().dot(glidePlane->n)==0? DislocationLoopIO<dim>::GLISSILELOOP : DislocationLoopIO<dim>::SESSILELOOP)
@@ -546,7 +546,7 @@ std::shared_ptr<SlipSystem> DislocationLoop<dim,corder>::searchSlipSystem() cons
 template <int dim, short unsigned int corder>
 typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::plasticDistortion() const
 {
-    return -burgers()*nA.transpose()/this->network().mesh.volume();
+    return -burgers()*nA.transpose()/this->network().ddBase.mesh.volume();
 }
 
 //Added by Yash
@@ -554,7 +554,7 @@ typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::pla
 template <int dim, short unsigned int corder>
 typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::plasticDistortionRate() const
 {
-    return -burgers()*nAR.transpose()/this->network().mesh.volume();
+    return -burgers()*nAR.transpose()/this->network().ddBase.mesh.volume();
 }
 
 template <int dim, short unsigned int corder>

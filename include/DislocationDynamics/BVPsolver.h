@@ -319,7 +319,7 @@ namespace model
         BVPsolver(const SimplicialMesh<dim>& mesh_in,const DislocationNetworkType& DN) :
         /* init  */ mesh(mesh_in)
         /* init  */,gSize(0)
-        /* init  */,C(get_C(DN.poly.mu,DN.poly.nu))
+        /* init  */,C(get_C(DN.ddBase.poly.mu,DN.ddBase.poly.nu))
         /* init  */,fe(mesh)
         /* init  */,cfe(mesh)
         /* init  */,u(fe.template trial<'u',dim>())
@@ -327,9 +327,9 @@ namespace model
         /* init  */,e(def(u))
         /* init  */,s(C*e)
         /* init  */,c(cfe.template trial<'c',1>())
-        /* init  */,tolerance(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("solverTolerance",true))
-        /* init  */,use_directSolver(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("use_directSolver_FEM",true))
-        /* init  */,stepsBetweenBVPupdates(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("stepsBetweenBVPupdates",true))
+        /* init  */,tolerance(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("solverTolerance",true))
+        /* init  */,use_directSolver(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("use_directSolver_FEM",true))
+        /* init  */,stepsBetweenBVPupdates(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("stepsBetweenBVPupdates",true))
         {
             
             
@@ -339,7 +339,7 @@ namespace model
             //            u  = new TrialFunctionType(fe.template trial<'u',dim>());
             //            b  = new TrialGradType(grad(u));
             //            e  = new TrialDefType(def(u));
-            C=get_C(DN.poly.mu,DN.poly.nu); // Material<Isotropic>  may have changed since construction
+            C=get_C(DN.ddBase.poly.mu,DN.ddBase.poly.nu); // Material<Isotropic>  may have changed since construction
 //            s  = new TrialStressType(C*e);
             dV = fe.template domain<EntireDomain,4,GaussLegendre>();
             bWF = new BilinearWeakFormType((test(e),s),dV);

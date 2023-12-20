@@ -115,7 +115,7 @@ namespace model
 //                    const double pdrMax(1.0e-7);
 
                     const std::tuple<double,double,double,double> length(DN.networkLength());
-                    const double glissileLength(std::get<0>(length)/DN.mesh.volume());
+                    const double glissileLength(std::get<0>(length)/DN.ddBase.mesh.volume());
                     const double pdrRef(glissileLength); // rho*b*cs, but b and cs are 1 in code units
                     
 

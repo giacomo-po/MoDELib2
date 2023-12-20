@@ -51,7 +51,8 @@ namespace model
         
         VectorDim _xMin;
         VectorDim _xMax;
-        
+        VectorDim _xC;
+
         double vol0;
         
         void createMesh(const std::set<int>&);
@@ -130,6 +131,9 @@ namespace model
         const Eigen::Matrix<double,_dim,1>& xMax() const;
         
         const double& xMax(const int& k) const;
+        
+        const Eigen::Matrix<double,_dim,1>& xCenter() const;
+        
         
         const double& volume() const;
         

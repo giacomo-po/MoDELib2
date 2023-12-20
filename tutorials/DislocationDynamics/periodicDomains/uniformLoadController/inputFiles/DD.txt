@@ -22,7 +22,8 @@ surfaceNucleationModel=0;
 ######################################
 # Settings for simulationType=2 (PERIODIC)
 periodicImageSize= 1 1 1; # number of images for each periodic shift vector
-periodicImageCentered=1;
+EwaldLengthFactor=1;
+
 
 ######################################
 # TIME STEPPING

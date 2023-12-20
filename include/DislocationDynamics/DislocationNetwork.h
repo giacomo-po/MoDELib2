@@ -136,17 +136,23 @@ namespace model
         constexpr static int NdofXnode=NetworkNodeType::NdofXnode;
         
         static int verboseDislocationNetwork;
+        
+//        typedef Quadrature<dim-1,1,GaussLegendre> StressGradientQuadratureType;
+//        void updatePeriodicStressGradient();
+//        MatrixDim sigmadAKernel(const Eigen::Matrix<double,dim-1,1>& abscissa,const Simplex<dim,dim-1>& simplex) const;
+//        Eigen::Matrix<double,dim*dim,dim> periodicStressGradient;
 
     public:
 
-        const DefectiveCrystalParameters& simulationParameters;
-        const SimplicialMesh<dim>& mesh;
-        const Polycrystal<dim>& poly;
-        GlidePlaneFactory<dim> glidePlaneFactory;
-        std::shared_ptr<PeriodicGlidePlaneFactory<dim>> periodicGlidePlaneFactory;
+        DislocationDynamicsBase<dim>& ddBase;
+//        const DefectiveCrystalParameters& simulationParameters;
+//        const SimplicialMesh<dim>& mesh;
+//        const Polycrystal<dim>& poly;
+//        GlidePlaneFactory<dim> glidePlaneFactory;
+//        std::shared_ptr<PeriodicGlidePlaneFactory<dim>> periodicGlidePlaneFactory;
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
-        const std::vector<VectorDim>& periodicShifts;
+//        const std::vector<VectorDim>& periodicShifts;
         const std::shared_ptr<DislocationGlideSolverBase<DislocationNetwork<dim,corder>>> glideSolver;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
         DislocationJunctionFormation<DislocationNetwork<dim,corder>> junctionsMaker;
@@ -174,13 +180,23 @@ namespace model
         const int verboseDislocationNode;
         bool capMaxVelocity;
 
-        DislocationNetwork(const DefectiveCrystalParameters& _simulationParameters,
-                           const SimplicialMesh<dim>& _mesh,
-                           const Polycrystal<dim>& _poly,
+//        DislocationNetwork(const DefectiveCrystalParameters& _simulationParameters,
+//                           const SimplicialMesh<dim>& _mesh,
+//                           const Polycrystal<dim>& _poly,
+//                           const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
+//                           const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
+//                           const std::vector<VectorDim>& _periodicShifts,
+//                           long int& runID);
+        
+        DislocationNetwork(DislocationDynamicsBase<dim>& ddBase_in,
+//                           const DefectiveCrystalParameters& _simulationParameters,
+//                           const SimplicialMesh<dim>& _mesh,
+//                           const Polycrystal<dim>& _poly,
                            const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
-                           const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
-                           const std::vector<VectorDim>& _periodicShifts,
-                           long int& runID);
+                           const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController
+//                           const std::vector<VectorDim>& _periodicShifts,
+//                           long int& runID
+                           );
         
         void setConfiguration(const DDconfigIO<dim>&);
         MatrixDim plasticDistortionRate() const;
@@ -202,7 +218,7 @@ namespace model
         MatrixDim stress(const VectorDim& x) const;
         void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
         void assembleGlide(const long int& runID, const double& maxVelocity);
-        void solveGlide(const long int& runID);
+        void solveGlide();
         void moveGlide(const double & dt_in);
         void storeSingleGlideStepDiscreteEvents(const long int& runID);
         void executeSingleGlideStepDiscreteEvents(const long int& runID);

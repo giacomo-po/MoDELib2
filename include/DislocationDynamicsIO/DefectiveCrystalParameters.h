@@ -30,7 +30,9 @@ namespace model
         const bool useDislocations;
         const bool useCracks;
         const std::vector<int> periodicImageSize;
-        const bool periodicImageCentered;
+//        const bool correctPeriodicGradients;
+//        const double EwaldLength;
+//        const bool periodicImageCentered;
         const long int Nsteps;
         const int timeIntegrationMethod;
         const int useSubCycling;

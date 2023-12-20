@@ -15,6 +15,29 @@
 namespace model
 {
 
+template <int dim>
+double getEwaldLength(const std::vector<Eigen::Matrix<double,dim,1>>& periodicBasis,const double& EwaldLengthFactor)
+{
+    
+    if(periodicBasis.size())
+    {
+        // Compute generalized volume of periodic lattice cell
+        Eigen::MatrixXd B(Eigen::MatrixXd::Zero(3,periodicBasis.size()));
+        for(size_t k=0;k<periodicBasis.size();++k)
+        {
+            B.col(k)=periodicBasis[k];
+        }
+        const double vol(sqrt((B.transpose()*B).determinant())/CTM::factorial(periodicBasis.size()));
+//        std::cout<<"vol="<<vol<<std::endl;
+//        std::cout<<"edge="<<std::pow(vol,1.0/periodicBasis.size())<<std::endl;
+//        std::cout<<"elength="<<EwaldLengthFactor*std::pow(vol,1.0/periodicBasis.size())<<std::endl;
+        return EwaldLengthFactor*std::pow(vol,1.0/periodicBasis.size());
+    }
+    else
+    {
+        return 0.0;
+    }
+}
 
     VTKsegments::VTKsegments(const std::string& folderName) :
     ///* init */ traitsIO(folderName)
@@ -136,6 +159,13 @@ std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes()
                         ss>>cellMatrix(d,0)>>cellMatrix(d,1)>>cellMatrix(d,2);//store nodal positions to x,y,z
                     }
                     std::cout<<"SIMULATION_CELL_MATRIX=\n"<<cellMatrix<<std::endl;
+                    
+                    std::vector<Eigen::Matrix<double,dim,1>> cellVectors;
+                    for(int d=0;d<3;++d)
+                    {
+                        cellVectors.emplace_back(cellMatrix.row(d)*1.0e-10/material.b_SI);
+                    }
+                    EwaldLength=getEwaldLength(cellVectors,perser.readScalar<double>("EwaldLengthFactor",true));
                 }
                 
                 if(line.find("PBC_FLAGS")!=std::string::npos) //if POINTS is read, read npos
@@ -315,7 +345,7 @@ std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes()
                         const VectorDim& sourceP(nodes()[sourceID]);
                         const VectorDim& sinkP(nodes()[sinkID]);
                         
-                        segments().emplace_back(material,sourceP,sinkP,Burgers);
+                        segments().emplace_back(material,sourceP,sinkP,Burgers,EwaldLength);
                         const VectorDim chord(sinkP-sourceP);
                         const double chordLength(chord.norm());
                         const int qOrder=QuadratureDynamicType::lowerOrder(quadPerLength*chordLength);

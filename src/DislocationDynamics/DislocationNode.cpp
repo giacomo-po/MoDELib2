@@ -56,7 +56,7 @@ namespace model
         std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
         if (guess==NULL)
         {
-            temp=this->network().mesh.search(X);
+            temp=this->network().ddBase.mesh.search(X);
         }
         else
         {
@@ -65,16 +65,16 @@ namespace model
             {// node only in one region
                 if((*grains.begin())->grainID!=guess->region->regionID)
                 {
-                    temp=this->network().mesh.searchRegion((*grains.begin())->grainID,X);
+                    temp=this->network().ddBase.mesh.searchRegion((*grains.begin())->grainID,X);
                 }
                 else
                 {
-                    temp=this->network().mesh.searchRegionWithGuess(X,guess);
+                    temp=this->network().ddBase.mesh.searchRegionWithGuess(X,guess);
                 }
             }
             else
             {
-                temp=this->network().mesh.searchWithGuess(X,guess);
+                temp=this->network().ddBase.mesh.searchWithGuess(X,guess);
             }
         }
         if(!temp.first) // PlanarDislocationNode not found inside mesh
@@ -135,7 +135,7 @@ namespace model
         {
             
             
-            if(!this->network().simulationParameters.isPeriodicSimulation())
+            if(!this->network().ddBase.simulationParameters.isPeriodicSimulation())
             {// Use boundary planes to confine velocity in case of non-periodic simulation
                 
                 for(const auto& face : this->meshFaces())

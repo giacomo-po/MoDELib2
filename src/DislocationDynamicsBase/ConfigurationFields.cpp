@@ -268,7 +268,7 @@ namespace model
                 {
                     const auto& sourceNode(configIO.nodes()[itSource->second]);
                     const auto&   sinkNode(configIO.nodes()[itSink->second]);
-                    StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b);
+                    StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b,ddBase.EwaldLength);
                     for(const auto& shift : ddBase.periodicShifts)
                     {
                         temp+=ss.stress(x+shift);

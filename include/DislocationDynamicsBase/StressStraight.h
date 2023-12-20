@@ -37,9 +37,11 @@ namespace model
         const VectorDim b;
         const double length;
         const VectorDim t;
+        const double& EwaldLength;
         const VectorDim bCt;
         
-        StressStraight(const PolycrystallineMaterialBase& material_in,const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b);
+        StressStraight(const PolycrystallineMaterialBase& material_in,const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b,
+                       const double& EwaldLength_in);
         MatrixDim nonSymmStress(const VectorDim& x) const;
         MatrixDim stress(const VectorDim& x) const;
         VectorDim displacement(const VectorDim& x) const;

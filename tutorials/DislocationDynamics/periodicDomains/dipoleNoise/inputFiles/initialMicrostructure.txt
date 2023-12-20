@@ -1,2 +1,1 @@
 microstructureFile = ./periodicDipole.txt;
-#microstructureFile = ./periodicLoops.txt;

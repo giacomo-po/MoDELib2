@@ -14,9 +14,45 @@
 #define model_DislocationDynamicsBase_CPP_
 
 #include <DislocationDynamicsBase.h>
-
+#include <CTM.h>
 namespace model
 {
+
+template <int dim>
+double getEwaldLength(const std::vector<Eigen::Matrix<double,dim,1>>& periodicBasis,const double& EwaldLengthFactor)
+{
+    
+    if(periodicBasis.size())
+    {
+        // Compute generalized volume of periodic lattice cell
+        Eigen::MatrixXd B(Eigen::MatrixXd::Zero(3,periodicBasis.size()));
+        for(size_t k=0;k<periodicBasis.size();++k)
+        {
+            B.col(k)=periodicBasis[k];
+        }
+        const double vol(sqrt((B.transpose()*B).determinant())/CTM::factorial(periodicBasis.size()));
+//        std::cout<<"vol="<<vol<<std::endl;
+//        std::cout<<"edge="<<std::pow(vol,1.0/periodicBasis.size())<<std::endl;
+//        std::cout<<"elength="<<EwaldLengthFactor*std::pow(vol,1.0/periodicBasis.size())<<std::endl;
+        return EwaldLengthFactor*std::pow(vol,1.0/periodicBasis.size());
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+template <int dim>
+Eigen::Matrix<double,dim,Eigen::Dynamic> getPeriodicLatticeBasis(const std::vector<Eigen::Matrix<double,dim,1>>& basisVector)
+{
+    Eigen::Matrix<double,dim,Eigen::Dynamic> temp(Eigen::MatrixXd::Zero(dim,basisVector.size()));
+    for(size_t k=0;k<basisVector.size();++k)
+    {
+        temp.col(k)=basisVector[k];
+    }
+    return temp;
+}
+
 template <int _dim>
 DislocationDynamicsBase<_dim>::DislocationDynamicsBase( const std::string& folderName) :
 /* init */ simulationParameters( folderName)
@@ -33,13 +69,27 @@ DislocationDynamicsBase<_dim>::DislocationDynamicsBase( const std::string& folde
 /* init */,glidePlaneFactory(poly)
 /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
 /* init */,periodicBasis(mesh.periodicBasis())
+/* init */,periodicLatticeBasis(getPeriodicLatticeBasis(periodicBasis))
+/* init */,periodicLatticeReciprocalBasis(periodicLatticeBasis*(periodicLatticeBasis.transpose()*periodicLatticeBasis).inverse())
 /* init */,periodicShifts(mesh.periodicShifts(simulationParameters.periodicImageSize))
+/* init */,EwaldLength(getEwaldLength(periodicBasis,TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("EwaldLengthFactor",true)))
 {
     if(!mesh.simplices().size())
     {
         throw std::runtime_error("Mesh is empty");
     }
+    
+    std::cout<<"EwaldLength="<<EwaldLength<<std::endl;
 }
+
+
+template <int _dim>
+Eigen::VectorXd DislocationDynamicsBase<_dim>::periodicCoordinates(const VectorDim& x) const
+{
+    const VectorDim dx(x-mesh.xCenter());
+    return periodicLatticeReciprocalBasis.transpose()*dx;
+}
+
 
 template struct DislocationDynamicsBase<3>;
 

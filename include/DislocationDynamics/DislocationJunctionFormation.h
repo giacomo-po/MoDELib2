@@ -206,7 +206,7 @@ namespace model
 
             if (ssd.dMin < currentcCollisionTOL)
             {
-                bool isValidJunction((bndJunction || gbndJunction) && DN.simulationParameters.simulationType != 2);
+                bool isValidJunction((bndJunction || gbndJunction) && DN.ddBase.simulationParameters.simulationType != 2);
                 if (!isValidJunction && !linkA->isBoundarySegment() && !linkB->isBoundarySegment() && !linkA->isGrainBoundarySegment() && !linkB->isGrainBoundarySegment())
                 { // Check force condition for internal segments
 
@@ -265,13 +265,13 @@ namespace model
 
                         if (ssd.dMin > FLT_EPSILON)
                         {
-                            StressStraight<dim> stressA(DN.poly,ssd.x0 - infiniteLineLength / LA * chordA,
+                            StressStraight<dim> stressA(DN.ddBase.poly,ssd.x0 - infiniteLineLength / LA * chordA,
                                                         ssd.x0 + infiniteLineLength / LA * chordA,
-                                                        linkA->burgers());
+                                                        linkA->burgers(),DN.ddBase.EwaldLength);
 
-                            StressStraight<dim> stressB(DN.poly,ssd.x1 - infiniteLineLength / LB * chordB,
+                            StressStraight<dim> stressB(DN.ddBase.poly,ssd.x1 - infiniteLineLength / LB * chordB,
                                                         ssd.x1 + infiniteLineLength / LB * chordB,
-                                                        linkB->burgers());
+                                                        linkB->burgers(),DN.ddBase.EwaldLength);
 
                             VerboseJunctions(3, "Non-intersecting pair" << std::endl;);
                             const VectorDim forceOnA = (stressB.stress(ssd.x0) * linkA->burgers()).cross(chordA);
@@ -950,10 +950,10 @@ namespace model
                     {
                         const VectorDim newNodeP(0.5 * (isLink->source->get_P() + isLink->sink->get_P())); //This new node is only on one side
 
-                        const long int planeIndex(DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
-                        const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n);
-                        const auto glidePlane(DN.glidePlaneFactory.getFromKey(glissilePlaneKey));
-                        auto glissileLoop(DN.loops().create(DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->s.cartesian(), glidePlane));
+                        const long int planeIndex(DN.ddBase.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
+                        const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.ddBase.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n);
+                        const auto glidePlane(DN.ddBase.glidePlaneFactory.getFromKey(glissilePlaneKey));
+                        auto glissileLoop(DN.loops().create(DN.ddBase.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->s.cartesian(), glidePlane));
 
                         VerboseJunctions(3, "Glissile Junction from Link" << isLink->tag() << std::endl;);
 
@@ -971,7 +971,7 @@ namespace model
 
                             std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
 
-                            const auto periodicGlidePlane(DN.periodicGlidePlaneFactory->get(glidePlane->key));
+                            const auto periodicGlidePlane(DN.ddBase.periodicGlidePlaneFactory.get(glidePlane->key));
                             const auto periodicPatch(periodicGlidePlane->getPatch(VectorDim::Zero()));
 
                             loopNodes.emplace_back(DN.loopNodes().create(glissileLoop, sink, sink->get_P(), periodicPatch, std::make_pair (nullptr,nullptr)));
@@ -1082,7 +1082,7 @@ namespace model
                                     //If the boundary node contraction is enabled this condition can be relaxed
                                     std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
 
-                                    const auto periodicGlidePlane(DN.periodicGlidePlaneFactory->get(glidePlane->key));
+                                    const auto periodicGlidePlane(DN.ddBase.periodicGlidePlaneFactory.get(glidePlane->key));
                                     const auto periodicPatch1(periodicGlidePlane->getPatch(VectorDim::Zero()));
 
                                     loopNodes.emplace_back(DN.loopNodes().create(glissileLoop, sink, sink->get_P(), periodicPatch1, std::make_pair(nullptr,nullptr)));
@@ -1244,7 +1244,7 @@ namespace model
                                     //If the boundary node contraction is enabled this condition can be relaxed
                                     std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
 
-                                    const auto periodicGlidePlane(DN.periodicGlidePlaneFactory->get(glidePlane->key));
+                                    const auto periodicGlidePlane(DN.ddBase.periodicGlidePlaneFactory.get(glidePlane->key));
                                     const auto periodicPatch1(periodicGlidePlane->getPatch(VectorDim::Zero()));
 
                                     std::set<short int> edgeIDsFirstPatch;
@@ -1340,8 +1340,8 @@ namespace model
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,maxJunctionIterations(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("maxJunctionIterations",true))
-        /* init */,verboseJunctions(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseJunctions",true))
+        /* init */,maxJunctionIterations(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("maxJunctionIterations",true))
+        /* init */,verboseJunctions(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseJunctions",true))
         /* init */,infiniteLineLength(10000.0)
         {
             

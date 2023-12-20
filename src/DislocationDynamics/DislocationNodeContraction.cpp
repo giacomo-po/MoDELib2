@@ -35,7 +35,7 @@ namespace model
     template <typename DislocationNetworkType>
     DislocationNodeContraction<DislocationNetworkType>::DislocationNodeContraction(DislocationNetworkType& DN_in) :
     /* init */ DN(DN_in)
-    /* init */,verboseNodeContraction(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseNodeContraction",true))
+    /* init */,verboseNodeContraction(TextFileParser(DN.ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseNodeContraction",true))
     {
         
     }
@@ -48,7 +48,7 @@ namespace model
         
         //See if you want to implement contract network node based on sIDs .. this will greatly help with contracting younger nodes in contract boundary nodes
         
-        if (DN.simulationParameters.isPeriodicSimulation())
+        if (DN.ddBase.simulationParameters.isPeriodicSimulation())
         {
             VerboseNodeContraction(1,"Populating boundary nodes to be contracted"<<std::endl;);
             

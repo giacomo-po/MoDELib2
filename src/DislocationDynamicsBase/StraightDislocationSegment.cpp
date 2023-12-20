@@ -15,6 +15,7 @@
 #endif
 
 #include <cfloat>
+#include <math.h>
 #include <StraightDislocationSegment.h>
 
 namespace model
@@ -71,8 +72,11 @@ namespace model
             const Scalar bYt(b.cross(Y).dot(t));
 
             
-            const Scalar f1(2.0/Y2);
-            
+//            const Scalar f1(2.0/Y2);
+            const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Y2/EwaldLength/EwaldLength)/Y2 : 2.0/Y2);
+//            const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ra/EwaldLength)/Y2 : 2.0/Y2);
+//            const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(sqrt(Y2)/EwaldLength)/Y2 : 2.0/Y2);
+
             
             return  f1*material.C1*t*(b.cross(Y)).transpose()
             /*   */-f1*Y*bCt.transpose()
@@ -116,8 +120,11 @@ namespace model
             const Scalar bYat(bYa.dot(t));
             
             
-            const Scalar f1(2.0/Ya2a2);
-            
+//            THIS MUST USE Ya, not Ra, otherwise code goes crazy
+            const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ya2a2/EwaldLength/EwaldLength)/Ya2a2 : 2.0/Ya2a2);
+//          const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ra/EwaldLength)/Ya2a2 : 2.0/Ya2a2);
+//            const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(sqrt(Ya2a2)/EwaldLength)/Ya2a2 : 2.0/Ya2a2);
+
             return f1*material.C1*(1.0+DislocationFieldBase<dim>::a2/Ya2a2)*t*bYa.transpose()
             /*  */+f1*material.C1*0.5*DislocationFieldBase<dim>::a2/Ra2*t*b.cross(r).transpose()
             /*  */-f1*Ya*bCt.transpose()
@@ -161,10 +168,11 @@ namespace model
             const Scalar zt(z.dot(t));
             const Scalar zb(z.dot(b));
             const Scalar zbA(z.dot(bA));
-            return (0.5*material.C1*bAtA*bt+material.nu*bAt*btA)*(2.0+2.0*logYat-DislocationFieldBase<dim>::a2/zaYat)
-            /*  */-bAb*tAt*(1.5+logYat-DislocationFieldBase<dim>::a2/zaYat)
-            /*  */-bAt*bt*tAt*(0.5+logYat+zt/Yat)
-            /*  */+tAt/Yat*(zbA*zb/za+bAt*zb+bt*zbA);
+            const double energyInf((0.5*material.C1*bAtA*bt+material.nu*bAt*btA)*(2.0+2.0*logYat-DislocationFieldBase<dim>::a2/zaYat)
+                               /*  */-bAb*tAt*(1.5+logYat-DislocationFieldBase<dim>::a2/zaYat)
+                               /*  */-bAt*bt*tAt*(0.5+logYat+zt/Yat)
+                               /*  */+tAt/Yat*(zbA*zb/za+bAt*zb+bt*zbA));
+            return EwaldLength>FLT_EPSILON? erfc(za/EwaldLength)*energyInf : energyInf;
         }
                 
         template <int dim>
@@ -173,19 +181,20 @@ namespace model
                                    const VectorDim& _P1,
                                    const VectorDim& _b,
                                    const double& _length,
-                                   const VectorDim& _t) :
-        /* init list */ material(mat),
-        /* init list */ P0(_P0),
-        /* init list */ P1(_P1),
-        /* init list */ b(_b),
-        /* init list */ length(_length),
-        /* init list */ t(_t),
-        /* init list */ bCt(b.cross(t))
+                                   const VectorDim& _t,
+                                   const double& EwaldLength_in) :
+        /* init  */ material(mat)
+        /* init  */,P0(_P0)
+        /* init  */,P1(_P1)
+        /* init  */,b(_b)
+        /* init  */,length(_length)
+        /* init  */,t(_t)
+        /* init  */,EwaldLength(EwaldLength_in)
+        /* init  */,bCt(b.cross(t))
         {/*!\param[in] _P0 starting point of the segment
           * \param[in] _P0 ending point of the segment
           * \param[in] _b Burgers vector of the segment
           */
-        
         }
 
         template <int dim>

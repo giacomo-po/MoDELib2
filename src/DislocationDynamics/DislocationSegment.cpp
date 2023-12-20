@@ -29,7 +29,7 @@ namespace model
     // /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
     /* init */,Burgers(VectorDim::Zero())
     /* init */,BurgersNorm(Burgers.norm())
-    /* init */,straight(this->network().poly,this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
+    /* init */,straight(this->network().ddBase.poly,this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection(),this->network().ddBase.EwaldLength)
     /* init */,_slipSystem(nullptr)
     {
         VerboseDislocationSegment(1,"Constructing DislocationSegment "<<this->tag()<<std::endl);
@@ -148,7 +148,7 @@ namespace model
         
         //assert(0 && "Following addGlidePlane is wrong, must consider shifts");
         
-        if(this->network().simulationParameters.isPeriodicSimulation())
+        if(this->network().ddBase.simulationParameters.isPeriodicSimulation())
         {
             const auto periodicPlanePatch(pL->periodicPlanePatch());
             if(periodicPlanePatch)

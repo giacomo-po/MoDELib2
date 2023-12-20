@@ -2,6 +2,6 @@ type=PeriodicLoop;
 style=individual;
 tag=plp0;
 periodicLoopSlipSystemIDs=0;
-periodicLoopRadii_SI=5.0e-8; [m] loop radii
+periodicLoopRadii_SI=27.0e-8; [m] loop radii
 periodicLoopSides=100; [-] number of side of loop polygon
 periodicLoopCenters=0 0 0;

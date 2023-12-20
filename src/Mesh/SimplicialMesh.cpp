@@ -81,6 +81,7 @@ namespace model
                     }
                 }
             }
+            _xC=0.5*(_xMax+_xMin);
         }
         else
         {
@@ -88,7 +89,8 @@ namespace model
         }
         std::cout<<"  xMin="<< std::setprecision(15)<<std::scientific<<_xMin.transpose()<<std::endl;
         std::cout<<"  xMax="<< std::setprecision(15)<<std::scientific<<_xMax.transpose()<<std::endl;
-        
+        std::cout<<"  xCenter="<< std::setprecision(15)<<std::scientific<<_xC.transpose()<<std::endl;
+
         
         // Populate typename SimplicialMesh<dim>::MeshRegionBoundaryContainerType
         regionBoundaries().clear();
@@ -182,6 +184,7 @@ namespace model
     SimplicialMesh<dim>::SimplicialMesh() :
     /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
+    /* init */,_xC(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,vol0(0.0)
     {
     }
@@ -191,6 +194,7 @@ namespace model
     SimplicialMesh<dim>::SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0,const std::set<int>& periodicFaceIDs) :
     /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
+    /* init */,_xC(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,vol0(0.0)
     {
         this->read(meshFileName,A,x0);
@@ -590,6 +594,12 @@ std::vector<typename SimplicialMesh<dim>::VectorDim> SimplicialMesh<dim>::period
     const double& SimplicialMesh<dim>::xMax(const int& k) const
     {
         return _xMax(k);
+    }
+
+    template<int dim>
+    const Eigen::Matrix<double,dim,1>& SimplicialMesh<dim>::xCenter() const
+    {
+        return _xC;
     }
     
     /**********************************************************************/

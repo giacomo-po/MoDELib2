@@ -61,7 +61,8 @@ namespace model
         template <int _dim, short unsigned int corder>
         DefectiveCrystal<_dim,corder>::DefectiveCrystal(DislocationDynamicsBase<_dim>& ddBase_in) :
         /* init */ ddBase(ddBase_in)
-        /* init */,DN(ddBase.simulationParameters.useDislocations? new DislocationNetworkType(ddBase.simulationParameters,ddBase.mesh,ddBase.poly,bvpSolver,externalLoadController,ddBase.periodicShifts,ddBase.simulationParameters.runID) : nullptr)
+//        /* init */,DN(ddBase.simulationParameters.useDislocations? new DislocationNetworkType(ddBase.simulationParameters,ddBase.mesh,ddBase.poly,bvpSolver,externalLoadController,ddBase.periodicShifts,ddBase.simulationParameters.runID) : nullptr)
+        /* init */,DN(ddBase.simulationParameters.useDislocations? new DislocationNetworkType(ddBase,bvpSolver,externalLoadController) : nullptr)
         /* init */,CS(ddBase.simulationParameters.useCracks? new CrackSystemType() : nullptr)
         /* init */,bvpSolver(ddBase.simulationParameters.simulationType==DDtraitsIO::FINITE_FEM? new BVPsolverType(ddBase.mesh,*DN) : nullptr)
         /* init */,externalLoadController(getExternalLoadController(ddBase,plasticStrain()))
@@ -108,7 +109,7 @@ namespace model
                 const double maxVelocity(getMaxVelocity());
                 DN->assembleGlide(ddBase.simulationParameters.runID, maxVelocity);
                 DN->storeSingleGlideStepDiscreteEvents(ddBase.simulationParameters.runID);
-                DN->solveGlide(ddBase.simulationParameters.runID);
+                DN->solveGlide();
                 ddBase.simulationParameters.dt=DN->timeIntegrator.getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 DN->updateRates();
                 DN->io().output(ddBase.simulationParameters.runID);

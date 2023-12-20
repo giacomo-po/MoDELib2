@@ -1,13 +1,13 @@
-materialFile=../../../MaterialsLibrary/W.txt;
+materialFile=../../../MaterialsLibrary/Cu.txt;
 absoluteTemperature=300; # [K] simulation temperature 
 dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal 
 meshFile=../../../MeshLibrary/unitCube.msh; # mesh file 
 C2G1=1.0 0.0 0.0
      0.0 1.0 0.0
      0.0 0.0 1.0; # crystal rotation matrix 
-F=1154.7005383792516 0.0 0.0
-  0.0 1154.7005383792516 0.0
-  0.0 0.0 1154.7005383792516; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
+F=1414.2135623730949 0.0 0.0
+  0.0 1414.2135623730949 0.0
+  0.0 0.0 1414.2135623730949; # mesh deformation gradient. Mesh nodes X are mapped to x=F*(X-X0) 
 X0=0.5 0.5 0.5; # mesh shift. Mesh nodes X are mapped to x=F*(X-X0) 
 periodicFaceIDs=0 1 2 3 4 5; # IDs of faces labelled as periodic 
 gridSize=256 256; # size of grid on the glide plane

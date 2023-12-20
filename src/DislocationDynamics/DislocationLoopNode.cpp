@@ -221,7 +221,7 @@ namespace model
             assert(this->loop()->glidePlane->contains(newP));
         }
         
-        if(this->network().simulationParameters.isPeriodicSimulation())
+        if(this->network().ddBase.simulationParameters.isPeriodicSimulation())
         {
             if(!periodicPlaneEdge.first)
             {// only move loop nodes not on patch boundaries

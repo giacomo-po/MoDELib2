@@ -2,7 +2,11 @@ import sys
 sys.path.append("../../../../../python/")
 from modlibUtils import *
 
-pf=PolyCrystalFile('../../../MaterialsLibrary/W.txt');
+# Make a local copy of simulation parameters file and modify that copy if necessary
+DDfile='DD.txt'
+shutil.copy2('../../'+DDfile, '.') 
+
+pf=PolyCrystalFile('../../../MaterialsLibrary/Cu.txt');
 pf.absoluteTemperature=300;
 pf.dislocationMobilityType='default'
 pf.meshFile='../../../MeshLibrary/unitCube.msh'

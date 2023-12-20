@@ -71,8 +71,10 @@ namespace model
         const Scalar bYt(b.cross(Y).dot(t));
         
         
-        const Scalar f1(2.0/Y2);
-        
+//        const Scalar f1(2.0/Y2);
+//        const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ra/EwaldLength)/Y2 : 2.0/Y2);
+        const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Y2/EwaldLength/EwaldLength)/Y2 : 2.0/Y2);
+
         
         return  f1*material.C1*t*(b.cross(Y)).transpose()
         /*   */-f1*Y*bCt.transpose()
@@ -116,8 +118,11 @@ namespace model
         const Scalar bYat(bYa.dot(t));
         
         
-        const Scalar f1(2.0/Ya2a2);
-        
+//        const Scalar f1(2.0/Ya2a2);
+//        const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ra/EwaldLength)/Ya2a2 : 2.0/Ya2a2);
+        const Scalar f1(EwaldLength>FLT_EPSILON? 2.0*erfc(Ya2a2/EwaldLength/EwaldLength)/Ya2a2 : 2.0/Ya2a2);
+
+
         return f1*material.C1*(1.0+DislocationFieldBase<dim>::a2/Ya2a2)*t*bYa.transpose()
         /*  */+f1*material.C1*0.5*DislocationFieldBase<dim>::a2/Ra2*t*b.cross(r).transpose()
         /*  */-f1*Ya*bCt.transpose()
@@ -144,13 +149,15 @@ namespace model
     }
 
     template <int dim,typename Scalar>
-    StressStraight<dim,Scalar>::StressStraight(const PolycrystallineMaterialBase& material_in,const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b) :
+    StressStraight<dim,Scalar>::StressStraight(const PolycrystallineMaterialBase& material_in,const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b,
+                                               const double& EwaldLength_in) :
     /* init list */ material(material_in),
     /* init list */ P0(_P0),
     /* init list */ P1(_P1),
     /* init list */ b(_b),
     /* init list */ length((P1-P0).norm()),
     /* init list */ t((P1-P0)/length),
+    /* init  */ EwaldLength(EwaldLength_in),
     /* init list */ bCt(b.cross(t))
     {/*!\param[in] _P0 starting point of the segment
       * \param[in] _P0 ending point of the segment

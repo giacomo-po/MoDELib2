@@ -158,6 +158,37 @@ namespace model
                                                            const int& faceID) const;
         std::set<size_t> regionIDs() const;
         
+        
+//        std::set<const Simplex<dim,dim>* const> vertexNeighbors() const
+//        {
+//            std::set<const Simplex<dim,0>* const> vtxSet;
+//            for(const auto& face : children())
+//            {
+//                for(const auto& edge : face->children())
+//                {
+//                    for(const auto& vertex : edge->children())
+//                    {
+//                        vtxSet.insert(vertex.get());
+//                    }
+//                }
+//            }
+//
+//            std::set<const Simplex<dim,dim>* const> eleSet;
+//            for(const auto& vtx : vtxSet)
+//            {
+//                for(const auto& edge : vtx->parents())
+//                {
+//                    for(const auto& face : edge.second->parents())
+//                    {
+//                        for(const auto& tet : face.second->parents())
+//                        {
+//                            eleSet.insert(tet.second);
+//                        }
+//                    }
+//                }
+//            }
+//            return eleSet;
+//        }
     };
     
     

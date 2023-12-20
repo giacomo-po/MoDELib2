@@ -56,16 +56,16 @@ namespace model
         /**********************************************************************/
         DislocationNetworkIO(const DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,f_file(DN.simulationParameters.traitsIO.fFile,std::ios_base::app)
-        /* init */,F_labels(DN.simulationParameters.traitsIO.flabFile,std::ios_base::app)
+        /* init */,f_file(DN.ddBase.simulationParameters.traitsIO.fFile,std::ios_base::app)
+        /* init */,F_labels(DN.ddBase.simulationParameters.traitsIO.flabFile,std::ios_base::app)
         {
             if (!f_file.is_open())
               {
-                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.traitsIO.fFile);
+                  throw std::runtime_error("Cannot open file "+DN.ddBase.simulationParameters.traitsIO.fFile);
               }
             if (!F_labels.is_open())
               {
-                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.traitsIO.flabFile);
+                  throw std::runtime_error("Cannot open file "+DN.ddBase.simulationParameters.traitsIO.flabFile);
               }
 
         }
@@ -92,7 +92,7 @@ namespace model
         /**********************************************************************/
         DDconfigIO<dim> configIO() const
         {
-            DDconfigIO<dim> temp(DN.simulationParameters.traitsIO.evlFolder);
+            DDconfigIO<dim> temp(DN.ddBase.simulationParameters.traitsIO.evlFolder);
             for(const auto& loop : DN.loops())
             {
                 temp.loops().emplace_back(*loop.second.lock());
@@ -155,13 +155,13 @@ namespace model
         /**********************************************************************/
         DDauxIO<dim> auxIO() const
         {
-            DDauxIO<dim> temp(DN.simulationParameters.traitsIO.auxFolder);
+            DDauxIO<dim> temp(DN.ddBase.simulationParameters.traitsIO.auxFolder);
             
             if(DN.outputMeshDisplacement)
             {
                 std::vector<FEMnodeEvaluation<typename DislocationNetworkType::ElementType,dim,1>> fieldPoints; // the container of field points
-                fieldPoints.reserve(DN.mesh.template observer<0>().size());
-                for (const auto& sIter : DN.mesh.template observer<0>())
+                fieldPoints.reserve(DN.ddBase.mesh.template observer<0>().size());
+                for (const auto& sIter : DN.ddBase.mesh.template observer<0>())
                 {
                     if(sIter.second->isBoundarySimplex())
                     {
@@ -174,7 +174,7 @@ namespace model
                 
                 for(auto& node : fieldPoints)
                 {// add FEM solution and output
-                    if(DN.simulationParameters.simulationType==DDtraitsIO::FINITE_FEM)
+                    if(DN.ddBase.simulationParameters.simulationType==DDtraitsIO::FINITE_FEM)
                     {
                         const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
                         node+=DN.bvpSolver->displacement().dofs(femID);
@@ -220,7 +220,7 @@ namespace model
             
             if(DN.outputSegmentPairDistances)
             {
-                const std::string outFileName(DN.simulationParameters.traitsIO.simulationFolder+"H/H_"+std::to_string(runID));
+                const std::string outFileName(DN.ddBase.simulationParameters.traitsIO.simulationFolder+"H/H_"+std::to_string(runID));
                 std::ofstream h_file(outFileName);
                 if (h_file.is_open())
                 {
@@ -282,7 +282,7 @@ namespace model
             if (DN.outputLinkingNumbers)
             {
                 DislocationLinkingNumber<DislocationNetworkType> LN(DN);
-                const std::string outFileName(DN.simulationParameters.traitsIO.simulationFolder+"Z/Z_"+std::to_string(runID));
+                const std::string outFileName(DN.ddBase.simulationParameters.traitsIO.simulationFolder+"Z/Z_"+std::to_string(runID));
                 std::ofstream z_file(outFileName);
                 if (z_file.is_open())
                 {
@@ -297,7 +297,7 @@ namespace model
             // Output to F file
             std::cout<<"Writing F/F_0.txt"<<std::flush;
             
-            f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.simulationParameters.totalTime<<" "<<DN.simulationParameters.dt<<" ";
+            f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.ddBase.simulationParameters.totalTime<<" "<<DN.ddBase.simulationParameters.dt<<" ";
             if(runID==0)
             {
                 F_labels<<"runID\n";
@@ -340,7 +340,7 @@ namespace model
             }
             
             const std::tuple<double,double,double,double> length(DN.networkLength());
-            const double densityFactor(1.0/DN.mesh.volume()/std::pow(DN.poly.b_SI,2));
+            const double densityFactor(1.0/DN.ddBase.mesh.volume()/std::pow(DN.ddBase.poly.b_SI,2));
             f_file<<std::get<0>(length)*densityFactor<<" "<<std::get<1>(length)*densityFactor<<" "<<std::get<2>(length)*densityFactor<<" "<<std::get<3>(length)*densityFactor<<" ";
             if(runID==0)
             {

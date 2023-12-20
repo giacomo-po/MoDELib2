@@ -43,7 +43,13 @@ namespace model
         GlidePlaneFactory<3> glidePlaneFactory;
         PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
         const std::vector<VectorDim> periodicBasis;
+        const Eigen::Matrix<double,dim,Eigen::Dynamic> periodicLatticeBasis;
+        const Eigen::Matrix<double,dim,Eigen::Dynamic> periodicLatticeReciprocalBasis;
         const std::vector<VectorDim> periodicShifts;
+        const double EwaldLength;
+
+        
+        Eigen::VectorXd periodicCoordinates(const VectorDim& x) const;
 
     }; // class DislocationDynamicsBase
 } // namespace model

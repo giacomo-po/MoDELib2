@@ -42,6 +42,9 @@ namespace model
 //        return iter==gammaSurfaceMap.end()? 0.0 : iter->second(b);
 //    }
 
+
+
+
     template <int dim>
     PolyhedronInclusion<dim>::PolyhedronInclusion(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodesMap,
                                                   const std::map<size_t,std::vector<size_t>>& faceIDs,
@@ -52,6 +55,7 @@ namespace model
                                             const int& _phaseID,
                                             const std::shared_ptr<SecondPhase<dim>>& sph) :
     /* init */ EshelbyInclusionBase<dim>(_eT,_nu,_mu,_mobilityReduction,_phaseID,sph)
+    /* init */,delta(MatrixDim::Identity())
     /* init */,nodes(nodesMap)
     /* init */,faces(getFaces(nodesMap,faceIDs))
     {
@@ -225,40 +229,40 @@ double PolyhedronInclusion<dim>::Phi_u_II_le(double a, double b, double le)
     return 0.0;
 }
 
-template <int dim>
-double PolyhedronInclusion<dim>::PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
-{
-    return -(Svnorm[i]) * (-(Phi_u_II_a(a, b, lp) - Phi_u_II_a(a, b, lm)) * Svnorm[j]
-                           - (Phi_u_II_b(a, b, lp) - Phi_u_II_b(a, b, lm)) * Vnorm[j]
-                           - (Phi_u_II_le(a, b, lp)) * Vdir[j] + (Phi_u_II_le(a, b, lm)) * Vdir[j]);
-}
+//template <int dim>
+//double PolyhedronInclusion<dim>::PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
+//{
+//    return -(Svnorm[i]) * (-(Phi_u_II_a(a, b, lp) - Phi_u_II_a(a, b, lm)) * Svnorm[j]
+//                           - (Phi_u_II_b(a, b, lp) - Phi_u_II_b(a, b, lm)) * Vnorm[j]
+//                           - (Phi_u_II_le(a, b, lp)) * Vdir[j] + (Phi_u_II_le(a, b, lm)) * Vdir[j]);
+//}
 
-template <int dim>
-double PolyhedronInclusion<dim>::PHI_ij(int i, int j, const VectorDim& x) const
-{
-    double result=0.0;
-    for(const auto& face : faces)
-    {
-        const auto& P0(face.second[0].second);
-        const auto& P1(face.second[1].second);
-        const auto& P2(face.second[2].second);
-        const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
-        const double a(Svnorm.dot(P0-x));
-        for(size_t e=0;e<face.second.size();++e)
-        {
-            const size_t e1(e<face.second.size()-1? e+1 : 0);
-            const VectorDim& vm(face.second[e].second);
-            const VectorDim& vp(face.second[e1].second);
-            const VectorDim Vdir((vp-vm).normalized());
-            const VectorDim Vnorm(Vdir.cross(Svnorm));
-            const double b((vp-x).dot(Vnorm));
-            const double lm((vm-x).dot(Vdir));
-            const double lp((vp-x).dot(Vdir));
-            result+=PHI_ij(i,j,a,b,lm,lp,Svnorm,Vnorm,Vdir);
-        }
-    }
-    return result;
-}
+//template <int dim>
+//double PolyhedronInclusion<dim>::PHI_ij(int i, int j, const VectorDim& x) const
+//{
+//    double result=0.0;
+//    for(const auto& face : faces)
+//    {
+//        const auto& P0(face.second[0].second);
+//        const auto& P1(face.second[1].second);
+//        const auto& P2(face.second[2].second);
+//        const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
+//        const double a(Svnorm.dot(P0-x));
+//        for(size_t e=0;e<face.second.size();++e)
+//        {
+//            const size_t e1(e<face.second.size()-1? e+1 : 0);
+//            const VectorDim& vm(face.second[e].second);
+//            const VectorDim& vp(face.second[e1].second);
+//            const VectorDim Vdir((vp-vm).normalized());
+//            const VectorDim Vnorm(Vdir.cross(Svnorm));
+//            const double b((vp-x).dot(Vnorm));
+//            const double lm((vm-x).dot(Vdir));
+//            const double lp((vp-x).dot(Vdir));
+//            result+=PHI_ij(i,j,a,b,lm,lp,Svnorm,Vnorm,Vdir);
+//        }
+//    }
+//    return result;
+//}
 
 template <int dim>
 double PolyhedronInclusion<dim>::Psi_I1_a_a_a(double a, double b, double le)
@@ -529,111 +533,189 @@ double PolyhedronInclusion<dim>::Psi_I1_le_le_le(double a, double b, double le)
 }
 
 
+//template <int dim>
+//double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
+//{
+//    return (-(Psi_I1_a_a_a(a, b, lp) - Psi_I1_a_a_a(a, b, lm)) * Svnorm[i] * Svnorm[j] * Svnorm[k] - (Psi_I1_b_b_b(a, b, lp) - Psi_I1_b_b_b(a, b, lm)) * Vnorm[i] * Vnorm[j] * Vnorm[k]
+//       - (Psi_I1_le_le_le(a, b, lp) - Psi_I1_le_le_le(a, b, lm)) * Vdir[i] * Vdir[j] * Vdir[k] - (Psi_I1_a_a_b(a, b, lp) - Psi_I1_a_a_b(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vnorm[k] + Svnorm[i] * Vnorm[j] * Svnorm[k] + Vnorm[i] * Svnorm[j] * Svnorm[k])
+//       - (Psi_I1_a_a_le(a, b, lp) - Psi_I1_a_a_le(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vdir[k] + Svnorm[i] * Vdir[j] * Svnorm[k] + Vdir[i] * Svnorm[j] * Svnorm[k]) - (Psi_I1_a_b_b(a, b, lp) - Psi_I1_a_b_b(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vnorm[k] + Svnorm[j] * Vnorm[i] * Vnorm[k] + Svnorm[k] * Vnorm[j] * Vnorm[i])
+//       - (Psi_I1_b_b_le(a, b, lp) - Psi_I1_b_b_le(a, b, lm)) * (Vdir[i] * Vnorm[j] * Vnorm[k] + Vdir[j] * Vnorm[i] * Vnorm[k] + Vdir[k] * Vnorm[i] * Vnorm[j]) - (Psi_I1_a_le_le(a, b, lp) - Psi_I1_a_le_le(a, b, lm)) * (Svnorm[i] * Vdir[j] * Vdir[k] + Svnorm[j] * Vdir[i] * Vdir[k] + Svnorm[k] * Vdir[i] * Vdir[j])
+//       - (Psi_I1_b_le_le(a, b, lp) - Psi_I1_b_le_le(a, b, lm)) * (Vnorm[i] * Vdir[j] * Vdir[k] + Vnorm[j] * Vdir[i] * Vdir[k] + Vnorm[k] * Vdir[i] * Vdir[j])
+//       - (Psi_I1_a_b_le(a, b, lp) - Psi_I1_a_b_le(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vdir[k] + Svnorm[i] * Vnorm[k] * Vdir[j] + Svnorm[j] * Vnorm[i] * Vdir[k] + Svnorm[k] * Vnorm[i] * Vdir[j] + Svnorm[j] * Vnorm[k] * Vdir[i] + Svnorm[k] * Vnorm[j] * Vdir[i])) * (-Svnorm[l]);
+//}
+
+
+//template <int dim>
+//double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, const VectorDim& x) const
+//{
+//    double result=0.0;
+//    for(const auto& face : faces)
+//    {
+//        const auto& P0(face.second[0].second);
+//        const auto& P1(face.second[1].second);
+//        const auto& P2(face.second[2].second);
+//        const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
+//        const double a(Svnorm.dot(P0-x));
+//        for(size_t e=0;e<face.second.size();++e)
+//        {
+//            const size_t e1(e<face.second.size()-1? e+1 : 0);
+//            const VectorDim& vm(face.second[e].second);
+//            const VectorDim& vp(face.second[e1].second);
+//            const VectorDim Vdir((vp-vm).normalized());
+//            const VectorDim Vnorm(Vdir.cross(Svnorm));
+//            const double b((vp-x).dot(Vnorm));
+//            const double lm((vm-x).dot(Vdir));
+//            const double lp((vp-x).dot(Vdir));
+//            result+=PSI_ijkl(i,j,k,l,a,b,lm,lp,Svnorm,Vnorm,Vdir);
+//        }
+//    }
+//    return result;
+//}
+
+//    template <int dim>
+//    double PolyhedronInclusion<dim>::eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const
+//    {
+//        auto delta_xy = [] (const int x, const int y) -> int {return x==y;};
+////        return  0.125/(std::numbers::pi*(1.0-this->nu))*(Psi_ijkl_a[voigtIndex(i,j)][voigtIndex(k,l)]
+////                                                         -2.0*this->nu*d[2][2]*Phi_ij_a[voigtIndex(i,j)]
+////                                                         -(1.0-this->nu)*(Phi_ij_a[voigtIndex(i,l)]*d[j][k]
+////                                                                          +Phi_ij_a[voigtIndex(j,k)]*d[i][l]
+////                                                                          +Phi_ij_a[voigtIndex(j,l)]*d[i][k]
+////                                                                          +Phi_ij_a[voigtIndex(i,k)]*d[j][l]));
+//
+//        return  0.125/(std::numbers::pi*(1.0-this->nu))*(PSI_ijkl(i,j,k,l,x)
+//                                                         -2.0*this->nu*delta_xy(k,l)*PHI_ij(i,j,x)
+//                                                         -(1.0-this->nu)*(PHI_ij(i,l,x)*delta_xy(j,k)
+//                                                                          +PHI_ij(j,k,x)*delta_xy(i,l)
+//                                                                          +PHI_ij(j,l,x)*delta_xy(i,k)
+//                                                                          +PHI_ij(i,k,x)*delta_xy(j,l)));
+//    }
+
 template <int dim>
-double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
+double PolyhedronInclusion<dim>::eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const MatrixDim& PHI,const MatrixDim& delta, const Psi_I1& psi,const VectorDim& Svnorm,const VectorDim& Vnorm,const VectorDim& Vdir) const
 {
-    return (-(Psi_I1_a_a_a(a, b, lp) - Psi_I1_a_a_a(a, b, lm)) * Svnorm[i] * Svnorm[j] * Svnorm[k] - (Psi_I1_b_b_b(a, b, lp) - Psi_I1_b_b_b(a, b, lm)) * Vnorm[i] * Vnorm[j] * Vnorm[k]
-       - (Psi_I1_le_le_le(a, b, lp) - Psi_I1_le_le_le(a, b, lm)) * Vdir[i] * Vdir[j] * Vdir[k] - (Psi_I1_a_a_b(a, b, lp) - Psi_I1_a_a_b(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vnorm[k] + Svnorm[i] * Vnorm[j] * Svnorm[k] + Vnorm[i] * Svnorm[j] * Svnorm[k])
-       - (Psi_I1_a_a_le(a, b, lp) - Psi_I1_a_a_le(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vdir[k] + Svnorm[i] * Vdir[j] * Svnorm[k] + Vdir[i] * Svnorm[j] * Svnorm[k]) - (Psi_I1_a_b_b(a, b, lp) - Psi_I1_a_b_b(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vnorm[k] + Svnorm[j] * Vnorm[i] * Vnorm[k] + Svnorm[k] * Vnorm[j] * Vnorm[i])
-       - (Psi_I1_b_b_le(a, b, lp) - Psi_I1_b_b_le(a, b, lm)) * (Vdir[i] * Vnorm[j] * Vnorm[k] + Vdir[j] * Vnorm[i] * Vnorm[k] + Vdir[k] * Vnorm[i] * Vnorm[j]) - (Psi_I1_a_le_le(a, b, lp) - Psi_I1_a_le_le(a, b, lm)) * (Svnorm[i] * Vdir[j] * Vdir[k] + Svnorm[j] * Vdir[i] * Vdir[k] + Svnorm[k] * Vdir[i] * Vdir[j])
-       - (Psi_I1_b_le_le(a, b, lp) - Psi_I1_b_le_le(a, b, lm)) * (Vnorm[i] * Vdir[j] * Vdir[k] + Vnorm[j] * Vdir[i] * Vdir[k] + Vnorm[k] * Vdir[i] * Vdir[j])
-       - (Psi_I1_a_b_le(a, b, lp) - Psi_I1_a_b_le(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vdir[k] + Svnorm[i] * Vnorm[k] * Vdir[j] + Svnorm[j] * Vnorm[i] * Vdir[k] + Svnorm[k] * Vnorm[i] * Vdir[j] + Svnorm[j] * Vnorm[k] * Vdir[i] + Svnorm[k] * Vnorm[j] * Vdir[i])) * (-Svnorm[l]);
-}
-
-
-template <int dim>
-double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, const VectorDim& x) const
-{
-    double result=0.0;
-    for(const auto& face : faces)
-    {
-        const auto& P0(face.second[0].second);
-        const auto& P1(face.second[1].second);
-        const auto& P2(face.second[2].second);
-        const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
-        const double a(Svnorm.dot(P0-x));
-        for(size_t e=0;e<face.second.size();++e)
-        {
-            const size_t e1(e<face.second.size()-1? e+1 : 0);
-            const VectorDim& vm(face.second[e].second);
-            const VectorDim& vp(face.second[e1].second);
-            const VectorDim Vdir((vp-vm).normalized());
-            const VectorDim Vnorm(Vdir.cross(Svnorm));
-            const double b((vp-x).dot(Vnorm));
-            const double lm((vm-x).dot(Vdir));
-            const double lp((vp-x).dot(Vdir));
-            result+=PSI_ijkl(i,j,k,l,a,b,lm,lp,Svnorm,Vnorm,Vdir);
-        }
-    }
-    return result;
-}
-
-    template <int dim>
-    double PolyhedronInclusion<dim>::eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const
-    {
-        auto delta_xy = [] (const int x, const int y) -> int {return x==y;};
-//        return  0.125/(std::numbers::pi*(1.0-this->nu))*(Psi_ijkl_a[voigtIndex(i,j)][voigtIndex(k,l)]
-//                                                         -2.0*this->nu*d[2][2]*Phi_ij_a[voigtIndex(i,j)]
-//                                                         -(1.0-this->nu)*(Phi_ij_a[voigtIndex(i,l)]*d[j][k]
-//                                                                          +Phi_ij_a[voigtIndex(j,k)]*d[i][l]
-//                                                                          +Phi_ij_a[voigtIndex(j,l)]*d[i][k]
-//                                                                          +Phi_ij_a[voigtIndex(i,k)]*d[j][l]));
         
-        return  0.125/(std::numbers::pi*(1.0-this->nu))*(PSI_ijkl(i,j,k,l,x)
-                                                         -2.0*this->nu*delta_xy(k,l)*PHI_ij(i,j,x)
-                                                         -(1.0-this->nu)*(PHI_ij(i,l,x)*delta_xy(j,k)
-                                                                          +PHI_ij(j,k,x)*delta_xy(i,l)
-                                                                          +PHI_ij(j,l,x)*delta_xy(i,k)
-                                                                          +PHI_ij(i,k,x)*delta_xy(j,l)));
-    }
+    const double psi_val= (-psi.I1_a_a_a * Svnorm[i] * Svnorm[j] * Svnorm[k] - psi.I1_b_b_b * Vnorm[i] * Vnorm[j] * Vnorm[k]
+       - psi.I1_le_le_le * Vdir[i] * Vdir[j] * Vdir[k] - psi.I1_a_a_b * (Svnorm[i] * Svnorm[j] * Vnorm[k] + Svnorm[i] * Vnorm[j] * Svnorm[k] + Vnorm[i] * Svnorm[j] * Svnorm[k])
+       - psi.I1_a_a_le * (Svnorm[i] * Svnorm[j] * Vdir[k] + Svnorm[i] * Vdir[j] * Svnorm[k] + Vdir[i] * Svnorm[j] * Svnorm[k]) - psi.I1_a_b_b * (Svnorm[i] * Vnorm[j] * Vnorm[k] + Svnorm[j] * Vnorm[i] * Vnorm[k] + Svnorm[k] * Vnorm[j] * Vnorm[i])
+       - psi.I1_b_b_le * (Vdir[i] * Vnorm[j] * Vnorm[k] + Vdir[j] * Vnorm[i] * Vnorm[k] + Vdir[k] * Vnorm[i] * Vnorm[j]) - psi.I1_a_le_le * (Svnorm[i] * Vdir[j] * Vdir[k] + Svnorm[j] * Vdir[i] * Vdir[k] + Svnorm[k] * Vdir[i] * Vdir[j])
+       - psi.I1_b_le_le * (Vnorm[i] * Vdir[j] * Vdir[k] + Vnorm[j] * Vdir[i] * Vdir[k] + Vnorm[k] * Vdir[i] * Vdir[j])
+       - psi.I1_a_b_le * (Svnorm[i] * Vnorm[j] * Vdir[k] + Svnorm[i] * Vnorm[k] * Vdir[j] + Svnorm[j] * Vnorm[i] * Vdir[k] + Svnorm[k] * Vnorm[i] * Vdir[j] + Svnorm[j] * Vnorm[k] * Vdir[i] + Svnorm[k] * Vnorm[j] * Vdir[i])) * (-Svnorm[l]);
+
+    
+    return  0.125/(std::numbers::pi*(1.0-this->nu))*(psi_val
+                                                     -2.0*this->nu*delta(k,l)*PHI(i,j)
+                                                     -(1.0-this->nu)*(PHI(i,l)*delta(j,k)
+                                                                      +PHI(j,k)*delta(i,l)
+                                                                      +PHI(j,l)*delta(i,k)
+                                                                      +PHI(i,k)*delta(j,l)));
+}
 
     template <int dim>
     typename PolyhedronInclusion<dim>::MatrixVoigtSize PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
     {
-        
         Eigen::Matrix<double,voigtSize,voigtSize> temp(Eigen::Matrix<double,voigtSize,voigtSize>::Zero());
-        
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(0,0,0,0,x);
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(0,0,1,1,x);
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(0,0,2,2,x);
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(0,0,1,2,x);
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(0,0,2,0,x);
-        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(0,0,0,1,x);
-        
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(1,1,0,0,x);
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(1,1,1,1,x);
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(1,1,2,2,x);
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(1,1,1,2,x);
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(1,1,2,0,x);
-        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(1,1,0,1,x);
+        Psi_I1 psi;
 
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(2,2,0,0,x);
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(2,2,1,1,x);
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(2,2,2,2,x);
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(2,2,1,2,x);
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(2,2,2,0,x);
-        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(2,2,0,1,x);
+        for(const auto& face : faces)
+        {
+            const auto& P0(face.second[0].second);
+            const auto& P1(face.second[1].second);
+            const auto& P2(face.second[2].second);
+            const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
+            const double a(Svnorm.dot(P0-x));
+            for(size_t e=0;e<face.second.size();++e)
+            {
+                const size_t e1(e<face.second.size()-1? e+1 : 0);
+                const VectorDim& vm(face.second[e].second);
+                const VectorDim& vp(face.second[e1].second);
+                const VectorDim Vdir((vp-vm).normalized());
+                const VectorDim Vnorm(Vdir.cross(Svnorm));
+                const double b((vp-x).dot(Vnorm));
+                const double lm((vm-x).dot(Vdir));
+                const double lp((vp-x).dot(Vdir));
+                
+                psi.I1_a_a_a=Psi_I1_a_a_a(a, b, lp) - Psi_I1_a_a_a(a, b, lm);
+                psi.I1_b_b_b=Psi_I1_b_b_b(a, b, lp) - Psi_I1_b_b_b(a, b, lm);
+                psi.I1_le_le_le=Psi_I1_le_le_le(a, b, lp) - Psi_I1_le_le_le(a, b, lm);
+                psi.I1_a_a_b=Psi_I1_a_a_b(a, b, lp) - Psi_I1_a_a_b(a, b, lm);
+                psi.I1_a_a_le=Psi_I1_a_a_le(a, b, lp) - Psi_I1_a_a_le(a, b, lm);
+                psi.I1_a_b_b=Psi_I1_a_b_b(a, b, lp) - Psi_I1_a_b_b(a, b, lm);
+                psi.I1_b_b_le=Psi_I1_b_b_le(a, b, lp) - Psi_I1_b_b_le(a, b, lm);
+                psi.I1_a_le_le=Psi_I1_a_le_le(a, b, lp) - Psi_I1_a_le_le(a, b, lm);
+                psi.I1_b_le_le=Psi_I1_b_le_le(a, b, lp) - Psi_I1_b_le_le(a, b, lm);
+                psi.I1_a_b_le=Psi_I1_a_b_le(a, b, lp) - Psi_I1_a_b_le(a, b, lm);
+                
+                const VectorDim PHI_j(-(Phi_u_II_a(a, b, lp) - Phi_u_II_a(a, b, lm))*Svnorm
+                                      -(Phi_u_II_b(a, b, lp) - Phi_u_II_b(a, b, lm))*Vnorm
+                                      -(Phi_u_II_le(a, b, lp))*Vdir + (Phi_u_II_le(a, b, lm))*Vdir);
+                const MatrixDim PHI(-Svnorm*PHI_j.transpose());
+                
+                
+                for(int iV=0;iV<voigtTraits.voigtSize;++iV)
+                {
+                    const size_t i(voigtTraits.tensorIndex(iV,0));
+                    const size_t j(voigtTraits.tensorIndex(iV,1));
 
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(0,1,0,1,x);
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(0,1,0,0,x);
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(0,1,1,1,x);
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(0,1,2,2,x);
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(0,1,1,2,x);
-        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(0,1,2,0,x);
+                    for(int jV=0;jV<voigtTraits.voigtSize;++jV)
+                    {
+                        const size_t k(voigtTraits.tensorIndex(jV,0));
+                        const size_t l(voigtTraits.tensorIndex(jV,1));
+                        temp(iV,jV)+=eshelbyTensorComponent(i,j,k,l,PHI,delta,psi,Svnorm,Vnorm,Vdir);
+                    }
+                }
+                
+            }
+        }
         
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(2,0,2,0,x);
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(2,0,0,0,x);
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(2,0,1,1,x);
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(2,0,2,2,x);
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(2,0,1,2,x);
-        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(2,0,0,1,x);
+        // 11 22 33 12 23 13 -> 00 11 22 01 12 02
         
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(1,2,1,2,x);
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(1,2,0,0,x);
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(1,2,1,1,x);
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(1,2,2,2,x);
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(1,2,2,0,x);
-        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(1,2,0,1,x);
+        
+        // 0000, 0011, 0022, 0001, 0012, 0002
+        // 1100, 1111, 1122, 1101, 1112, 1102
+        
+        
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(0,0,0,0,x);
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(0,0,1,1,x);
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(0,0,2,2,x);
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(0,0,0,1,x);
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(0,0,1,2,x);
+//        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(0,0,2,0,x);
+//
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(1,1,0,0,x);
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(1,1,1,1,x);
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(1,1,2,2,x);
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(1,1,1,2,x);
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(1,1,2,0,x);
+//        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(1,1,0,1,x);
+//
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(2,2,0,0,x);
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(2,2,1,1,x);
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(2,2,2,2,x);
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(2,2,1,2,x);
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(2,2,2,0,x);
+//        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(2,2,0,1,x);
+//
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(0,1,0,1,x);
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(0,1,0,0,x);
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(0,1,1,1,x);
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(0,1,2,2,x);
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(0,1,1,2,x);
+//        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(0,1,2,0,x);
+//
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(2,0,2,0,x);
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(2,0,0,0,x);
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(2,0,1,1,x);
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(2,0,2,2,x);
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(2,0,1,2,x);
+//        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(2,0,0,1,x);
+//
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(1,2,1,2,x);
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(1,2,0,0,x);
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(1,2,1,1,x);
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(1,2,2,2,x);
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(1,2,2,0,x);
+//        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(1,2,0,1,x);
         
         
         return temp;

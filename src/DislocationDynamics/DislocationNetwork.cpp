@@ -19,63 +19,100 @@ namespace model
 
 /**********************************************************************/
 template <int dim, short unsigned int corder>
-DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParameters& _simulationParameters,
-                                                   const SimplicialMesh<dim>& _mesh,
-                                                   const Polycrystal<dim>& _poly,
+//DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParameters& _ddBase.simulationParameters,
+//                                                   const SimplicialMesh<dim>& _mesh,
+//                                                   const Polycrystal<dim>& _poly,
+//                                                   const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
+//                                                   const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
+//                                                   const std::vector<VectorDim>& _ddBase.periodicShifts,
+//                                                   long int& runID) :
+DislocationNetwork<dim,corder>::DislocationNetwork(DislocationDynamicsBase<dim>& ddBase_in,
                                                    const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
-                                                   const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
-                                                   const std::vector<VectorDim>& _periodicShifts,
-                                                   long int& runID) :
-/* init */ simulationParameters(_simulationParameters)
-/* init */,mesh(_mesh)
-/* init */,poly(_poly)
-/* init */,glidePlaneFactory(poly)
-/* init */,periodicGlidePlaneFactory(simulationParameters.isPeriodicSimulation()? new PeriodicGlidePlaneFactory<dim>(poly, glidePlaneFactory) : nullptr)
+                                                   const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController) :
+/* init */ ddBase(ddBase_in)
+///* init */ ddBase.simulationParameters(_ddBase.simulationParameters)
+///* init */,mesh(_mesh)
+///* init */,poly(_poly)
+///* init */,ddBase.glidePlaneFactory(poly)
+///* init */,periodicddBase.glidePlaneFactory(ddBase.simulationParameters.isPeriodicSimulation()? new PeriodicddBase.glidePlaneFactory<dim>(poly, ddBase.glidePlaneFactory) : nullptr)
 /* init */,bvpSolver(_bvpSolver)
 /* init */,externalLoadController(_externalLoadController)
-/* init */,periodicShifts(_periodicShifts)
-/* init */,glideSolver(DislocationGlideSolverFactory<DislocationNetwork<dim,corder>>::getGlideSolver(*this,TextFileParser(simulationParameters.traitsIO.ddFile).readString("glideSolverType",true)))
+///* init */,ddBase.periodicShifts(_ddBase.periodicShifts)
+/* init */,glideSolver(DislocationGlideSolverFactory<DislocationNetwork<dim,corder>>::getGlideSolver(*this,TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readString("glideSolverType",true)))
 /* init */,networkRemesher(*this)
 /* init */,junctionsMaker(*this)
-/* init */,crossSlipModel(DislocationCrossSlip<DislocationNetwork<dim,corder>>::getModel(poly,simulationParameters.traitsIO))
+/* init */,crossSlipModel(DislocationCrossSlip<DislocationNetwork<dim,corder>>::getModel(ddBase.poly,ddBase.simulationParameters.traitsIO))
 /* init */,crossSlipMaker(*this)
 /* init */,nodeContractor(*this)
-/* init */,timeIntegrator(simulationParameters.traitsIO.ddFile)
-/* init */,stochasticForceGenerator(simulationParameters.use_stochasticForce? new StochasticForceGenerator(simulationParameters.traitsIO) : nullptr)
+/* init */,timeIntegrator(ddBase.simulationParameters.traitsIO.ddFile)
+/* init */,stochasticForceGenerator(ddBase.simulationParameters.use_stochasticForce? new StochasticForceGenerator(ddBase.simulationParameters.traitsIO) : nullptr)
 /* init */,networkIO(*this)
-///* init */,ddSolverType(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("ddSolverType",true))
-/* init */,computeDDinteractions(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
-/* init */,outputFrequency(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
-/* init */,outputBinary(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
-/* init */,outputMeshDisplacement(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputMeshDisplacement",true))
-/* init */,outputFEMsolution(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFEMsolution",true))
-/* init */,outputQuadraturePoints(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputQuadraturePoints",true))
-/* init */,outputLinkingNumbers(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLinkingNumbers",true))
-/* init */,outputLoopLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLoopLength",true))
-/* init */,outputSegmentPairDistances(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputSegmentPairDistances",true))
-/* init */,computeElasticEnergyPerLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeElasticEnergyPerLength",true))
-/* init */,alphaLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("alphaLineTension",true))
-/* init */,use_velocityFilter(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("use_velocityFilter",true))
-/* init */,velocityReductionFactor(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("velocityReductionFactor",true))
-/* init */,verboseDislocationNode(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("verboseDislocationNode",true))
-/* init */,capMaxVelocity(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("capMaxVelocity",true))
+///* init */,ddSolverType(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("ddSolverType",true))
+/* init */,computeDDinteractions(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
+/* init */,outputFrequency(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
+/* init */,outputBinary(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
+/* init */,outputMeshDisplacement(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputMeshDisplacement",true))
+/* init */,outputFEMsolution(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputFEMsolution",true))
+/* init */,outputQuadraturePoints(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputQuadraturePoints",true))
+/* init */,outputLinkingNumbers(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputLinkingNumbers",true))
+/* init */,outputLoopLength(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputLoopLength",true))
+/* init */,outputSegmentPairDistances(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputSegmentPairDistances",true))
+/* init */,computeElasticEnergyPerLength(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("computeElasticEnergyPerLength",true))
+/* init */,alphaLineTension(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("alphaLineTension",true))
+/* init */,use_velocityFilter(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("use_velocityFilter",true))
+/* init */,velocityReductionFactor(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<double>("velocityReductionFactor",true))
+/* init */,verboseDislocationNode(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseDislocationNode",true))
+/* init */,capMaxVelocity(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("capMaxVelocity",true))
 {
     
     assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
         
     // Initialize static variables
-    LoopNetworkType::verboseLevel=TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("verboseLoopNetwork",true);
-    verboseDislocationNetwork=TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("verboseDislocationNetwork",true);
-    LoopType::initFromFile(simulationParameters.traitsIO.ddFile);
-    LoopNodeType::initFromFile(simulationParameters.traitsIO.ddFile);
-    LoopLinkType::initFromFile(simulationParameters.traitsIO.ddFile);
-    NetworkLinkType::initFromFile(simulationParameters.traitsIO.ddFile);
-    DislocationFieldBase<dim>::initFromFile(simulationParameters.traitsIO.ddFile);
+    LoopNetworkType::verboseLevel=TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseLoopNetwork",true);
+    verboseDislocationNetwork=TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseDislocationNetwork",true);
+    LoopType::initFromFile(ddBase.simulationParameters.traitsIO.ddFile);
+    LoopNodeType::initFromFile(ddBase.simulationParameters.traitsIO.ddFile);
+    LoopLinkType::initFromFile(ddBase.simulationParameters.traitsIO.ddFile);
+    NetworkLinkType::initFromFile(ddBase.simulationParameters.traitsIO.ddFile);
+    DislocationFieldBase<dim>::initFromFile(ddBase.simulationParameters.traitsIO.ddFile);
     
-    DDconfigIO<dim> evl(simulationParameters.traitsIO.evlFolder);
-    evl.read(runID);
+    DDconfigIO<dim> evl(ddBase.simulationParameters.traitsIO.evlFolder);
+    evl.read(ddBase.simulationParameters.runID);
     setConfiguration(evl);
 }
+
+
+
+
+
+//template <int dim, short unsigned int corder>
+//void DislocationNetwork<dim,corder>::updatePeriodicStressGradient()
+//{
+//    const auto t0 = std::chrono::system_clock::now();
+//    std::cout<<"computing periodic stress gradient"<<std::flush;
+//    periodicStressGradient.setZero();
+//    for(const auto& region : ddBase.mesh.regions())
+//    {
+//        for(const auto& meshFace : region.second->faces())
+//        {
+//            if(meshFace.second->isExternal() && meshFace.second->periodicFacePair.second)
+//            {// an external periodic face
+//                const VectorDim outNormal(meshFace.second->outNormal());
+//                MatrixDim S(MatrixDim::Zero());
+//                for(const auto& simplex : meshFace.second->simplices())
+//                {
+//                    StressGradientQuadratureType::integrate(this,S,&DislocationNetwork<dim,corder>::sigmadAKernel,*simplex);
+//                }
+//                for(size_t k=0;k<dim;++k)
+//                {
+//                    periodicStressGradient.template block<dim,dim>(k*dim,0)+=S*outNormal(k)/ddBase.mesh.volume();
+//                }
+//            }
+//        }
+//    }
+//    std::cout<<"periodicStressGradient=\n"<<periodicStressGradient<<std::endl;
+//    std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
+//}
 
 
 //New Version
@@ -89,13 +126,13 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
     size_t loopNumber=1;
     for(const auto& loop : evl.loops())
     {
-        const bool faulted(poly.grain(loop.grainID).singleCrystal->rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false);
+        const bool faulted(ddBase.poly.grain(loop.grainID).singleCrystal->rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false);
         std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
         const size_t loopIDinFile(loop.sID);
         LoopType::set_count(loopIDinFile);
         
-        GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
-        tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
+        GlidePlaneKey<dim> loopPlaneKey(loop.P, ddBase.poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
+        tempLoops.push_back(this->loops().create(loop.B, ddBase.glidePlaneFactory.getFromKey(loopPlaneKey)));
         assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
         loopNumber++;
         
@@ -104,8 +141,8 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
         //            {
         //                case DislocationLoopIO<dim>::GLISSILELOOP:
         //                {
-        //                    GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
-        //                    tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
+        //                    GlidePlaneKey<dim> loopPlaneKey(loop.P, ddBase.poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+        //                    tempLoops.push_back(this->loops().create(loop.B, ddBase.glidePlaneFactory.getFromKey(loopPlaneKey)));
         //                    assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
         //                    loopNumber++;
         //                    break;
@@ -225,18 +262,18 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
     for(const auto& inclusion : evl.sphericalInclusions())
     {
         std::cout<<"Creating spherical inclusion "<<inclusion.inclusionID<<std::endl;
-        const std::pair<bool,const Simplex<dim,dim>*> searchPair(mesh.search(inclusion.C));
+        const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(inclusion.C));
         if(searchPair.first)
         {
             
-            const auto& grain(poly.grain(searchPair.second->region->regionID));
+            const auto& grain(ddBase.poly.grain(searchPair.second->region->regionID));
             if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
             {
             const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
             EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
             
             
-            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
             
             eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
             }
@@ -247,7 +284,7 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
             
 //            eshelbyInclusions().emplace(std::piecewise_construct,
 //                                        std::make_tuple(inclusion.inclusionID),
-//                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase) );
+//                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase) );
             
         }
     }
@@ -291,7 +328,7 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
                 std::set<size_t> grainIDs;
                 for(const auto& nodePtr : uniquePolyNodes)
                 {
-                    const std::pair<bool,const Simplex<dim,dim>*> searchPair(mesh.search(nodePtr->P));
+                    const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(nodePtr->P));
                     if(searchPair.first)
                     {
                         grainIDs.insert(searchPair.second->region->regionID);
@@ -305,12 +342,12 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
                 // Add inclusion
                 if(grainIDs.size()==1)
                 {
-                    const auto& grain(poly.grain(*grainIDs.begin()));
+                    const auto& grain(ddBase.poly.grain(*grainIDs.begin()));
                     if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                     {
                     const auto secondPhase(grain.singleCrystal->secondPhases().at(inclusion.phaseID));
                     EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
-                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
                     eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
                     }
                     else
@@ -365,7 +402,7 @@ typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& D
 //    template <int dim, short unsigned int corder>
 //    void DislocationNetwork<dim,corder>::createEshelbyInclusions()
 //    {
-//        for(const auto& grain : poly.grains())
+//        for(const auto& grain : ddBase.poly.grains())
 //        {
 //            EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
 //        }
@@ -400,7 +437,7 @@ typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& D
 //            EshelbyInclusion<dim>::set_count(inclusionID);
 //            eshelbyInclusions().emplace(std::piecewise_construct,
 //                                        std::make_tuple(inclusionID),
-//                                        std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
+//                                        std::make_tuple(C,a,eT,ddBase.poly.nu,ddBase.poly.mu,inclusionsMobilityReduction[typeID],typeID) );
 //        }
 //    }
 
@@ -577,13 +614,13 @@ typename DislocationNetwork<dim,corder>::VectorDim DislocationNetwork<dim,corder
   * Note:
   */
     
-    assert(!simulationParameters.isPeriodicSimulation());
+    assert(!ddBase.simulationParameters.isPeriodicSimulation());
     
     VectorDim temp(VectorDim::Zero());
     
     for(const auto& loop : this->loops())
     {// sum solid angle of each loop
-        for(const auto& shift : periodicShifts)
+        for(const auto& shift : ddBase.periodicShifts)
         {
             temp-=loop.second.lock()->solidAngle(x+shift)/4.0/std::numbers::pi*loop.second.lock()->burgers();
         }
@@ -592,11 +629,11 @@ typename DislocationNetwork<dim,corder>::VectorDim DislocationNetwork<dim,corder
     for(const auto& link : this->networkLinks())
     {// sum line-integral part of displacement field per segment
         if(   !link.second.lock()->hasZeroBurgers()
-           //                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM)
-           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
+           //                   && (!link.second->isBoundarySegment() || ddBase.simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM)
+           //                   && !(link.second->isVirtualBoundarySegment() && ddBase.simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
            )
         {
-            for(const auto& shift : periodicShifts)
+            for(const auto& shift : ddBase.periodicShifts)
             {
                 temp+=link.second.lock()->straight.displacement(x+shift);
             }
@@ -631,11 +668,11 @@ typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder
     for(const auto& link : this->networkLinks())
     {// sum stress field per segment
         if(   !link.second.lock()->hasZeroBurgers()
-           && !(link.second.lock()->isBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
+           && !(link.second.lock()->isBoundarySegment() && ddBase.simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
+           //                   && !(link.second->isVirtualBoundarySegment() && ddBase.simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
            )
         {
-            for(const auto& shift : periodicShifts)
+            for(const auto& shift : ddBase.periodicShifts)
             {
                 temp+=link.second.lock()->straight.stress(x+shift);
             }
@@ -643,6 +680,14 @@ typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder
     }
     return temp;
 }
+
+//template <int dim, short unsigned int corder>
+//typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::sigmadAKernel(const Eigen::Matrix<double,dim-1,1>& abscissa,const Simplex<dim,dim-1>& simplex) const
+//{
+//    const Eigen::Matrix<double,dim,1> bary(BarycentricTraits<dim-1>::x2l(abscissa));
+//    const double J(2.0*SimplexVolume<dim,dim-1>::volume(simplex.vertexPositionMatrix()));
+//    return stress(simplex.bary2pos(bary))*J;
+//}
 
 /**********************************************************************/
 template <int dim, short unsigned int corder>
@@ -660,13 +705,13 @@ void DislocationNetwork<dim,corder>::stress(std::deque<FEMfaceEvaluation<Element
 /**********************************************************************/
 
 template <int dim, short unsigned int corder>
-void DislocationNetwork<dim, corder>::solveGlide(const long int &runID)
+void DislocationNetwork<dim, corder>::solveGlide()
 {
 //    const auto t0 = std::chrono::system_clock::now();
 //    std::cout <<"Solving glide "<< std::flush;
 //    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
     const Eigen::VectorXd X(glideSolver->getNodeVelocities());
-    if(NdofXnode*this->networkNodes().size()==X.size())
+    if(int(NdofXnode*this->networkNodes().size())==X.size())
     {
         size_t k=0;
         for (auto& networkNode : this->networkNodes())
@@ -677,9 +722,12 @@ void DislocationNetwork<dim, corder>::solveGlide(const long int &runID)
     }
     else
     {
+        std::cout<<"NdofXnode*this->networkNodes().size()="<<NdofXnode*this->networkNodes().size()<<std::endl;
+        std::cout<<"glideSolver->getNodeVelocities().size()="<<glideSolver->getNodeVelocities().size()<<std::endl;
         throw std::runtime_error("glideSolver returned wrong velocity vector size.");
     }
     
+    //    const auto t0 = std::chrono::system_clock::now();
 //    std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
 }
 
@@ -696,7 +744,7 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
     //! -1 Compute the interaction StressField between dislocation particles
     
     std::map<int, int> velocityBinMap;
-    for (const auto &binVal : simulationParameters.subcyclingBins)
+    for (const auto &binVal : ddBase.simulationParameters.subcyclingBins)
     {
         velocityBinMap.emplace(binVal, 0);
     }
@@ -707,7 +755,7 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
         for (const auto &links : this->networkLinks())
         {
             
-            const int velGroup(simulationParameters.useSubCycling ? links.second.lock()->velocityGroup(maxVelocity, simulationParameters.subcyclingBins) : 1);
+            const int velGroup(ddBase.simulationParameters.useSubCycling ? links.second.lock()->velocityGroup(maxVelocity, ddBase.simulationParameters.subcyclingBins) : 1);
             auto velocityBinIter(velocityBinMap.find(velGroup));
             assert(velocityBinIter != velocityBinMap.end());
             velocityBinIter->second++;
@@ -735,6 +783,10 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
 //        }
 //        std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
         
+//        if(ddBase.simulationParameters.isPeriodicSimulation() && ddBase.simulationParameters.correctPeriodicGradients)
+//        {
+//            updatePeriodicStressGradient();
+//        }
         
         const auto t2 = std::chrono::system_clock::now();
         std::cout <<"Computing stress field at quadrature points (" << nThreads << " threads) " << std::flush;
@@ -744,7 +796,7 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
         {
             auto linkIter(this->networkLinks().begin());
             std::advance(linkIter, k);
-            const int velGroup(simulationParameters.useSubCycling ? linkIter->second.lock()->velocityGroup(maxVelocity, simulationParameters.subcyclingBins) : 1);
+            const int velGroup(ddBase.simulationParameters.useSubCycling ? linkIter->second.lock()->velocityGroup(maxVelocity, ddBase.simulationParameters.subcyclingBins) : 1);
             
             if ((runID % velGroup) == 0)
             {
@@ -758,7 +810,7 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
 #else
         for (auto &linkIter : this->networkLinks())
         {
-            const int velGroup(simulationParameters.useSubCycling ? linkIter.second.lock()->velocityGroup(maxVelocity, simulationParameters.subcyclingBins) : 1);
+            const int velGroup(ddBase.simulationParameters.useSubCycling ? linkIter.second.lock()->velocityGroup(maxVelocity, ddBase.simulationParameters.subcyclingBins) : 1);
             
             if ((runID % velGroup) == 0)
             {
@@ -780,7 +832,7 @@ void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const
     //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
     //        std::cout <<"Assembling and solving " << std::flush;
 //    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
-    if(simulationParameters.useSubCycling)
+    if(ddBase.simulationParameters.useSubCycling)
     {
         std::cout <<"Velocity bins for segments " << velocityBinMap.size() << std::endl;
         for (const auto &vBins : velocityBinMap)
@@ -1385,7 +1437,7 @@ void DislocationNetwork<dim,corder>::moveGlide(const double & dt_in)
     const auto t0= std::chrono::system_clock::now();
     std::cout<<"Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
     
-    if(simulationParameters.isPeriodicSimulation())
+    if(ddBase.simulationParameters.isPeriodicSimulation())
     {
         
         

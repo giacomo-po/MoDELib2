@@ -212,7 +212,7 @@ Eigen::VectorXd GalerkinGlideSolver<DislocationNetworkType>::lumpedSolve() const
         const size_t Ndof = assembleNCtriplets(kqqT, Fq);
 
         
-            if (this->DN.simulationParameters.isPeriodicSimulation())
+            if (this->DN.ddBase.simulationParameters.isPeriodicSimulation())
             {
                 TripletContainerType zT;
 
